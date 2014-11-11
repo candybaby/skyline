@@ -13,7 +13,6 @@ UpdateStategyRtree::UpdateStategyRtree(Model* model)
 
 UpdateStategyRtree::~UpdateStategyRtree(void)
 {
-	_slideWindowTree.~RStarTree();
 	_maybeTree.~RStarTree();
 	_updateList.clear();
 }
@@ -29,21 +28,23 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchDDR = Bounds(minDDR, maxDDR);
-	UVisitor x;
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDDR), UVisitor());
+	UVisitorWithoutPruned x;
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDDR), UVisitorWithoutPruned());
 	// 物件MBR 處於新進物件的DDR(有Overlap)
-	vector<int> maxDim;
+	vector<int> maxDim, minDim;
 	for (int i=0;i<DIMENSION;i++)
 	{
 		maxDim.push_back(mbr.edges[i].second);
+		minDim.push_back(mbr.edges[i].first);
 	}
 
-	vector<UncertainObject*> pruningObjects = PruningMethod(x.uObjects, maxDim);
+	vector<UncertainObject*> pruningObjects = PruningMethod(x.uObjects, maxDim, minDim);
 
 	for (vector<UncertainObject*>::iterator It = pruningObjects.begin(); It < pruningObjects.end(); It++)
 	{
 		UncertainObject* pruningObject = *It;
-		_maybeTree.RemoveItem(pruningObject);
+		pruningObject->SetPruned(true);
+		//_maybeTree.RemoveItem(pruningObject);
 	}
 	///////////////////////////////////////////////////////////////////////////////////
 	int minDAR[DIMENSION], maxDAR[DIMENSION];
@@ -54,7 +55,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchDAR = Bounds(minDAR, maxDAR);
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitor());
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitorWithoutPruned());
 	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,14 +67,13 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchPAR = Bounds(minPAR, maxPAR);
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitor());
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitorWithoutPruned());
 	if (x.count != 0)
 	{
 		_updateList.push_back(uObject);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////
 	_maybeTree.Insert(uObject, mbr);
-	_slideWindowTree.Insert(uObject, mbr);
 }
 
 void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
@@ -87,12 +87,11 @@ void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchDAR = Bounds(minDAR, maxDAR);
-	UVisitor x;
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitor());
+	UVisitorWithoutPruned x;
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitorWithoutPruned());
 	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	///////////////////////////////////////////////////////////////////////////////////////
 	_maybeTree.RemoveItem(uObject);
-	_slideWindowTree.RemoveItem(uObject);
 }
 
 void UpdateStategyRtree::ComputeSkyline()
@@ -112,7 +111,7 @@ void UpdateStategyRtree::ComputeSkyline()
 		}
 		UVisitor x;
 		BoundingBox searchPAR = Bounds(minPAR, maxPAR);
-		x = _slideWindowTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitor());
+		x = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitor());
 		//////////////////////////////////////////////////////////////////////
 		vector<UncertainObject*> maybeDominateMeList = x.uObjects;
 		vector<Instance*> instances = uObject->GetInstances();
@@ -149,8 +148,8 @@ void UpdateStategyRtree::ComputeSkyline()
 string UpdateStategyRtree::GetSkylineResult()
 {
 	string result = "";
-	UVisitor x;
-	x = _maybeTree.Query(RTree::AcceptAny(), UVisitor());
+	UVisitorWithoutPruned x;
+	x = _maybeTree.Query(RTree::AcceptAny(), UVisitorWithoutPruned());
 	vector<UncertainObject*> temp = x.uObjects;
 	for (vector<UncertainObject*>::iterator it = temp.begin(); it < temp.end(); it++)
 	{
@@ -208,33 +207,48 @@ BoundingBox UpdateStategyRtree::GetMBR(UncertainObject* uObject)
 	return Bounds(min, max);
 }
 
-vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObject*> uObjects, vector<int> maxDim)
+vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObject*> uObjects, vector<int> maxDim, vector<int> minDim)
 {
+	Instance* fake = new Instance;
+	for (vector<int>::iterator dimIt = maxDim.begin(); dimIt < maxDim.end(); dimIt++)
+	{
+		fake->AddDimensionValue(*dimIt);
+	}
+
 	vector<UncertainObject*> result;
 	for (vector<UncertainObject*>::iterator It = uObjects.begin(); It < uObjects.end(); It++)
 	{
 		UncertainObject* targetObject = *It;
-		vector<Instance*> targetInstances = targetObject->GetInstances();
-		double tempProbability = 0;
-		for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
+		bool needCompute = true;
+		BoundingBox bb = GetMBR(targetObject);
+		for (int i=0; i< DIMENSION;i++)
 		{
-			Instance* targetInstance = *instancesIt;
-			Instance* fake = new Instance;
-			for (vector<int>::iterator dimIt = maxDim.begin(); dimIt < maxDim.end(); dimIt++)
+			if (bb.edges[i].first < minDim.at(i))
 			{
-				fake->AddDimensionValue(*dimIt);
-			}
-			if (Function::DominateTest(fake, targetInstance, _dimensions))
-			{
-				tempProbability += targetInstance->GetProbability();
+				needCompute = false;
 			}
 		}
-		// targetObject 無法成為skyline
-		if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
+		if (needCompute)
 		{
-			result.push_back(targetObject);
+			vector<Instance*> targetInstances = targetObject->GetInstances();
+			double tempProbability = 0;
+			for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
+			{
+				Instance* targetInstance = *instancesIt;
+
+				if (Function::DominateTest(fake, targetInstance, _dimensions))
+				{
+					tempProbability += targetInstance->GetProbability();
+				}
+			}
+			// targetObject 無法成為skyline
+			if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
+			{
+				result.push_back(targetObject);
+			}
 		}
 	}
+	delete fake;
 	return result;
 }
 

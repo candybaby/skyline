@@ -3,6 +3,7 @@
 
 UncertainObject::UncertainObject(void)
 {
+	_isPruned = false;
 }
 
 
@@ -55,4 +56,14 @@ double UncertainObject::GetSkylineProbability()
 		result += instance->GetSkylineProbability() * instance->GetProbability(); 
 	}
 	return result;
+}
+
+void UncertainObject::SetPruned(bool flag)
+{
+	_isPruned = flag;
+}
+
+bool UncertainObject::GetPruned()
+{
+	return _isPruned;
 }

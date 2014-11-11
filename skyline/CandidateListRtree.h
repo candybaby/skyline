@@ -40,14 +40,14 @@ public:
 private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
 	BoundingBox GetMBR(UncertainObject *);
-	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>);
-	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, int[DIMENSION]);
+	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>, vector<int>);
 	void Group();
 	void Normal();
 
 	bool _IsGroup;
 	map<int, vector<UncertainObject*>> _candidateList;
 	vector<UncertainObject*> _skyline;
+	vector<UncertainObject*> _prunedObject;
 	RTree _candidateTree;
 };
 #endif

@@ -33,10 +33,11 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 	Visitor x;
 	x = _candidateTree.Query(RTree::AcceptOverlapping(searchDDR), Visitor());
 	// 物件MBR 處於新進物件的DDR(有Overlap)
-	vector<int> maxDim;
+	vector<int> maxDim, minDim;
 	for (int i=0;i<DIMENSION;i++)
 	{
 		maxDim.push_back(mbr.edges[i].second);
+		minDim.push_back(mbr.edges[i].first);
 	}
 
 	///*int maxDim[DIMENSION];
@@ -44,12 +45,14 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 	//{
 	//maxDim[i] = mbr.edges[i].second;
 	//}*/
-	vector<UncertainObject*> pruningObjects = PruningMethod(x.uObjects, maxDim);
+	// 可能會影響skyline結果
+	vector<UncertainObject*> pruningObjects = PruningMethod(x.uObjects, maxDim, minDim);
 
 	for (vector<UncertainObject*>::iterator It = pruningObjects.begin(); It < pruningObjects.end(); It++)
 	{
 		UncertainObject* pruningObject = *It;
 		_candidateTree.RemoveItem(pruningObject);
+		_prunedObject.push_back(pruningObject);
 	}
 
 	int minPAR[DIMENSION], maxPAR[DIMENSION];
@@ -85,19 +88,19 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 			_candidateList.insert(pair<int, vector<UncertainObject*>> (indexCL, temp));
 		} else {
 			vector<UncertainObject*> temp = _candidateList.at(indexCL);
-			//vector<int> maxDim;
-			//maxDim.push_back(mbr.edges[0].second);
-			//maxDim.push_back(mbr.edges[1].second);
-			int maxDim[DIMENSION];
+			vector<int> maxDim, minDim;
 			for (int i=0;i<DIMENSION;i++)
 			{
-				maxDim[i] = mbr.edges[i].second;
+				maxDim.push_back(mbr.edges[i].second);
+				minDim.push_back(mbr.edges[i].first);
 			}
-			vector<UncertainObject*> pruningObjects = PruningMethod(temp, maxDim);
+			
+			vector<UncertainObject*> pruningObjects = PruningMethod(temp, maxDim, minDim);
 			for (vector<UncertainObject*>::iterator It = pruningObjects.begin(); It < pruningObjects.end(); It++)
 			{
 				UncertainObject* pruningObject = *It;
 				_candidateList.at(indexCL).erase(find(_candidateList.at(indexCL).begin(), _candidateList.at(indexCL).end(), pruningObject));
+				_prunedObject.push_back(pruningObject);
 			}
 			_candidateList.at(indexCL).push_back(uObject);
 		}
@@ -109,6 +112,10 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 void CandidateListRtree::DeleteObject(UncertainObject* uObject)
 {
 	_candidateTree.RemoveItem(uObject);
+	if (find(_prunedObject.begin(), _prunedObject.end(),uObject) != _prunedObject.end())
+	{
+		_prunedObject.erase(find(_prunedObject.begin(), _prunedObject.end(), uObject));
+	}
 	int indexCL = _currentTimestamp;
 	if (_candidateList.find(indexCL) != _candidateList.end())
 	{
@@ -231,10 +238,13 @@ void CandidateListRtree::Group()
 	for(map<string, vector<UncertainObject*>>::iterator gIt = groups.begin(); gIt != groups.end(); gIt++)
 	{
 		vector<UncertainObject*> tempSkyline = gIt->second;
+		vector<UncertainObject*> tempSkyline2;
+		tempSkyline2.insert(tempSkyline2.begin(),tempSkyline.begin(),tempSkyline.end());
+		tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());
 		for (vector<UncertainObject*>::iterator it = tempSkyline.begin(); it < tempSkyline.end(); it++)
 		{
 			UncertainObject* uObject = *it;
-			for (vector<UncertainObject*>::iterator it2 = tempSkyline.begin(); it2 < tempSkyline.end(); it2++)
+			for (vector<UncertainObject*>::iterator it2 = tempSkyline2.begin(); it2 < tempSkyline2.end(); it2++)
 			{
 				UncertainObject* uObject2 = *it2;
 				if (uObject != uObject2)
@@ -247,9 +257,9 @@ void CandidateListRtree::Group()
 						Instance* instance = *instamceIt;
 						for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
 						{
-							if (Function::DominateTest(instance, *instamceIt2, _dimensions))
+							if (Function::DominateTest(*instamceIt2, instance, _dimensions))
 							{
-								(*instamceIt2)->AddDominateMeInstance(instance);
+								instance->AddDominateMeInstance(*instamceIt2);
 							}
 						}
 					}
@@ -267,7 +277,7 @@ void CandidateListRtree::Normal()
 	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
 	_skyline = x.uObjects;
 
-	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
+	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
 	{
 		// 清空我被誰Dominate的陣列
 		UncertainObject* uObject = *it;
@@ -281,7 +291,7 @@ void CandidateListRtree::Normal()
 	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
 	{
 		UncertainObject* uObject = *it;
-		for (vector<UncertainObject*>::iterator it2 = _skyline.begin(); it2 < _skyline.end(); it2++)
+		for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
 		{
 			UncertainObject* uObject2 = *it2;
 			if (uObject != uObject2)
@@ -294,9 +304,9 @@ void CandidateListRtree::Normal()
 					Instance* instance = *instamceIt;
 					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
 					{
-						if (Function::DominateTest(instance, *instamceIt2, _dimensions))
+						if (Function::DominateTest(*instamceIt2, instance, _dimensions))
 						{
-							(*instamceIt2)->AddDominateMeInstance(instance);
+							instance->AddDominateMeInstance(*instamceIt2);
 						}
 					}
 				}
@@ -363,63 +373,47 @@ BoundingBox CandidateListRtree::GetMBR(UncertainObject* uObject)
 	return Bounds(min, max);
 }
 
-vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObject*> uObjects, vector<int> maxDim)
+vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObject*> uObjects, vector<int> maxDim, vector<int> minDim)
 {
+	Instance* fake = new Instance;
+	for (vector<int>::iterator dimIt = maxDim.begin(); dimIt < maxDim.end(); dimIt++)
+	{
+		fake->AddDimensionValue(*dimIt);
+	}
+
 	vector<UncertainObject*> result;
 	for (vector<UncertainObject*>::iterator It = uObjects.begin(); It < uObjects.end(); It++)
 	{
 		UncertainObject* targetObject = *It;
-		vector<Instance*> targetInstances = targetObject->GetInstances();
-		double tempProbability = 0;
-		for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
+		bool needCompute = true;
+		BoundingBox bb = GetMBR(targetObject);
+		for (int i=0; i< DIMENSION;i++)
 		{
-			Instance* targetInstance = *instancesIt;
-			Instance* fake = new Instance;
-			for (vector<int>::iterator dimIt = maxDim.begin(); dimIt < maxDim.end(); dimIt++)
+			if (bb.edges[i].first < minDim.at(i))
 			{
-				fake->AddDimensionValue(*dimIt);
-			}
-			if (Function::DominateTest(fake, targetInstance, _dimensions))
-			{
-				tempProbability += targetInstance->GetProbability();
+				needCompute = false;
 			}
 		}
-		// targetObject 無法成為skyline
-		if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
+		if (needCompute)
 		{
-			result.push_back(targetObject);
+			vector<Instance*> targetInstances = targetObject->GetInstances();
+			double tempProbability = 0;
+			for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
+			{
+				Instance* targetInstance = *instancesIt;
+
+				if (Function::DominateTest(fake, targetInstance, _dimensions))
+				{
+					tempProbability += targetInstance->GetProbability();
+				}
+			}
+			// targetObject 無法成為skyline
+			if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
+			{
+				result.push_back(targetObject);
+			}
 		}
 	}
-	return result;
-}
-
-
-vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObject*> uObjects, int maxDim[DIMENSION])
-{
-	vector<UncertainObject*> result;
-	for (vector<UncertainObject*>::iterator It = uObjects.begin(); It < uObjects.end(); It++)
-	{
-		UncertainObject* targetObject = *It;
-		vector<Instance*> targetInstances = targetObject->GetInstances();
-		double tempProbability = 0;
-		for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
-		{
-			Instance* targetInstance = *instancesIt;
-			Instance* fake = new Instance;
-			for (int i = 0;i<DIMENSION;i++)
-			{
-				fake->AddDimensionValue(maxDim[i]);
-			}
-			if (Function::DominateTest(fake, targetInstance, _dimensions))
-			{
-				tempProbability += targetInstance->GetProbability();
-			}
-		}
-		// targetObject 無法成為skyline
-		if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
-		{
-			result.push_back(targetObject);
-		}
-	}
+	delete fake;
 	return result;
 }

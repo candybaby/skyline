@@ -21,10 +21,13 @@ public:
 	vector<Instance*> GetInstances();
 
 	double GetSkylineProbability();
+	void SetPruned(bool);
+	bool GetPruned();
 
 private:
 	string name;
 	int timestamp;
 	vector<Instance*> instances;
+	bool _isPruned;
 };
 #endif

@@ -23,6 +23,23 @@ struct UVisitor {
 	}
 };
 
+struct UVisitorWithoutPruned {
+	int count;
+	vector<UncertainObject*> uObjects;
+	bool ContinueVisiting;
+
+	UVisitorWithoutPruned() : count(0), ContinueVisiting(true) {};
+
+	void operator()(const RTree::Leaf * const leaf) 
+	{
+		if (!leaf->leaf->GetPruned())
+		{
+			uObjects.push_back(leaf->leaf);
+			count++;
+		}
+	}
+};
+
 using namespace std;
 
 class UpdateStategyRtree : public ISkyline
@@ -41,9 +58,9 @@ public:
 private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
 	BoundingBox GetMBR(UncertainObject *);
-	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>);
+	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>, vector<int>);
 
-	RTree _slideWindowTree;
+	//RTree _slideWindowTree;
 	RTree _maybeTree;
 	vector<UncertainObject*> _updateList;
 };

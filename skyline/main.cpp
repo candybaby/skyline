@@ -95,9 +95,9 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	{
 		CLR->NextTimestamp();
 
-		//int cT = CLR->GetTimestamp();
-		//cout << "Timestamp: " << cT << endl;
-		//cout << CLR->GetSkylineResult() << endl;
+		/*int cT = CLR->GetTimestamp();
+		resultFile << "Timestamp: " << cT << endl;
+		resultFile << CLR->GetSkylineResult() << endl;*/
 	}
 	end = clock();
 	delete CLR;
@@ -124,9 +124,9 @@ double RunBF(string dataSet, double threshold, int windowSize)
 	{
 		bf->NextTimestamp();
 
-		/*int cT = bf->GetTimestamp();
-		resultFile << "Timestamp: " << cT << endl;
-		resultFile << bf->GetSkylineResult() << endl;*/
+		//int cT = bf->GetTimestamp();
+		//resultFile << "Timestamp: " << cT << endl;
+		//resultFile << bf->GetSkylineResult() << endl;
 	}
 	end = clock();
 	delete bf;
@@ -204,9 +204,12 @@ int main(int argc, char *argv[])
 	double _timeBF = 0;
 
 	double threshod[5] = {0.1,0.3,0.5,0.7,0.9};
-
+	//double threshod[1] = {0.9};
 	int processingRate = 0;
 	double processUnit = 20.0 / testCount;
+
+	system("cls");
+	cout << "Now : " << processingRate << "%" << endl;
 
 	for (int j = 0; j< 5;j++)
 	{
@@ -229,7 +232,7 @@ int main(int argc, char *argv[])
 		for (int i = 0 ;i < testCount; i++)
 		{
 			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
-			//_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
+			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
 			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
 			_timeBF += RunBF(dataSet, threshod[j], windowSize);
 			//RunGBUS();
@@ -244,13 +247,13 @@ int main(int argc, char *argv[])
 		//cout << "BF Average Time : " << _timeBF / testCount << endl;
 
 		resultFile << "USR Average Time : " << _timeUSR / testCount << endl;
-		//resultFile << "CLR Average Time : " << _timeCLR / testCount << endl;
+		resultFile << "CLR Average Time : " << _timeCLR / testCount << endl;
 		resultFile << "CLRG Average Time : " << _timeCLRG / testCount << endl;
 		resultFile << "BF Average Time : " << _timeBF / testCount << endl;
 		
 		//cout << "BF Average Time : " << _timeBF / TESTCOUNT << endl;
 		_timeUSR = 0;
-		//_timeCLR = 0;
+		_timeCLR = 0;
 		_timeCLRG = 0;
 		_timeBF = 0;
 	}
