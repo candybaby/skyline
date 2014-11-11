@@ -59,6 +59,33 @@ string Function::convertDoubleToString(double &targetDouble)
 string Function::diffclock(clock_t clock1,clock_t clock2)
 {
 	double diffticks=clock1-clock2;
-	double diffms=(diffticks*10)/CLOCKS_PER_SEC;
+	double diffms=(diffticks);
 	return convertDoubleToString(diffms);
+}
+
+bool Function::isBigger(double a, double b, double offset)
+{
+	bool result = false;
+	double c = a - b;
+	if (c > offset)
+	{
+		result = true;
+	}
+	return result;
+}
+
+bool Function::isEqual(double a, double b, double offset)
+{
+	bool result = false;
+	double c = a - b;
+	if (std::abs(c) <= offset)
+	{
+		result = true;
+	}
+	return result;
+}
+
+bool Function::isBiggerEqual(double a, double b, double offset)
+{
+	return isBigger(a, b, offset) || isEqual(a, b, offset);
 }

@@ -1,0 +1,50 @@
+------------------------Setting------------------------
+	DataSet:	data.tsv
+	Dimensions:	2
+	WindowSize:	5
+	Threshold:	0.1
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 500
+CLRG Average Time : 466
+BF Average Time : 353
+------------------------Setting------------------------
+	DataSet:	data.tsv
+	Dimensions:	2
+	WindowSize:	5
+	Threshold:	0.3
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 467
+CLRG Average Time : 446
+BF Average Time : 351
+------------------------Setting------------------------
+	DataSet:	data.tsv
+	Dimensions:	2
+	WindowSize:	5
+	Threshold:	0.5
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 462
+CLRG Average Time : 412
+BF Average Time : 354
+------------------------Setting------------------------
+	DataSet:	data.tsv
+	Dimensions:	2
+	WindowSize:	5
+	Threshold:	0.7
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 426
+CLRG Average Time : 391
+BF Average Time : 354
+------------------------Setting------------------------
+	DataSet:	data.tsv
+	Dimensions:	2
+	WindowSize:	5
+	Threshold:	0.9
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 409
+CLRG Average Time : 345
+BF Average Time : 355

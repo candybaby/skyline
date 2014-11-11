@@ -100,7 +100,7 @@ struct RStarBoundingBox {
 	{
 		// if (y1 < x1 || x2 < y2)
 		for (std::size_t axis = 0; axis < dimensions; axis++)
-			if (bb.edges[axis].first < edges[axis].first || edges[axis].second < bb.edges[axis].second)
+			if (bb.edges[axis].first <= edges[axis].first || edges[axis].second <= bb.edges[axis].second)
 				return false;
 		
 		return true;
@@ -113,7 +113,7 @@ struct RStarBoundingBox {
 		// if (!(x1 < y2) && !(x2 > y1))
 		for (std::size_t axis = 0; axis < dimensions; axis++)
 		{		
-			if (!(edges[axis].first < bb.edges[axis].second) || !(bb.edges[axis].first < edges[axis].second))
+			if (!(edges[axis].first <= bb.edges[axis].second) || !(bb.edges[axis].first <= edges[axis].second))
 				return false;
 		}
 

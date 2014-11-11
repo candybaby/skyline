@@ -8,13 +8,21 @@ Model::Model(void)
 
 Model::~Model(void)
 {
+	objectsHashByName.clear();
+	objectsHash.clear();
+	while (objects.size() > 0)
+	{
+		UncertainObject* delData = objects.back();
+		objects.pop_back();
+		delete delData;
+	}
 }
 
-void Model::LoadData()
+void Model::LoadData(string dataSet)
 {
-	string fileName = DATASET;
+	string fileName = dataSet;
 	FileManager* file = new FileManager;
-	file->openFile("../Debug/" + fileName, FileManager::Read);
+	file->openFile(fileName, FileManager::Read);
 	string content = file->readFile();
 	file->closeFile();
 
@@ -49,7 +57,19 @@ void Model::LoadData()
 		instance->SetProbability(probability);
 		for (int i = 0; i < temp.size() - 4; i++)
 		{
-			instance->AddDimensionValue(std::stoi(temp[ i + 3]));
+			int value = std::stoi(temp[ i + 3]);
+			instance->AddDimensionValue(value);
+			if (_maxDimensions.size() != temp.size() - 4)
+			{
+				_maxDimensions.push_back(value);
+			}
+			else
+			{
+				if (_maxDimensions.at(i) < value)
+				{
+					_maxDimensions.at(i) = value;
+				}
+			}
 		}
 		object->AddInstance(instance);
 	}
@@ -61,6 +81,11 @@ void Model::LoadData()
 		objectsHash.insert(pair<int, UncertainObject*> (timestamp, *it));
 	}
 
+	for (vector<UncertainObject*>::iterator it = objects.begin(); it < objects.end(); it++)
+	{
+		string name = (*it)->GetName();
+		objectsHashByName.insert(pair<string, UncertainObject*> (name, *it));
+	}
 }
 
 UncertainObject* Model::GetObjectByTimestamp(int timestamp)
@@ -75,7 +100,24 @@ UncertainObject* Model::GetObjectByTimestamp(int timestamp)
 	return result;
 }
 
+UncertainObject* Model::GetObjectByName(string name)
+{
+	UncertainObject* result = NULL;
+	if (objectsHashByName.find(name) == objectsHashByName.end()) {
+		// not found
+	} else {
+		result = objectsHashByName.at(name);
+	}
+
+	return result;
+}
+
 int Model::GetSize()
 {
 	return objects.size();
+}
+
+vector<int> Model::GetMaxDimension()
+{
+	return _maxDimensions;
 }

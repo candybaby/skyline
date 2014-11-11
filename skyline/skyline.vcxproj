@@ -75,7 +75,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BruteForce.cpp" />
+    <ClCompile Include="GridBaseUpdateStrategy.cpp" />
     <ClCompile Include="CandidateListRtree.cpp" />
+    <ClCompile Include="Cell.cpp" />
+    <ClCompile Include="CellManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="Instance.cpp" />
@@ -83,10 +86,17 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="UncertainObject.cpp" />
+    <ClCompile Include="UpdateStategyRtree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BruteForce.h" />
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\Octree.h" />
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\OctreePoint.h" />
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\Vec3.h" />
+    <ClInclude Include="GridBaseUpdateStrategy.h" />
     <ClInclude Include="CandidateListRtree.h" />
+    <ClInclude Include="Cell.h" />
+    <ClInclude Include="CellManager.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="Function.h" />
@@ -97,6 +107,7 @@
     <ClInclude Include="RStarTree.h" />
     <ClInclude Include="RStarVisitor.h" />
     <ClInclude Include="UncertainObject.h" />
+    <ClInclude Include="UpdateStategyRtree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -31,6 +31,18 @@
     <Filter Include="Header Files\Model">
       <UniqueIdentifier>{4a0664d0-daa6-4c03-aa95-3f3b7746fd73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\RTree">
+      <UniqueIdentifier>{10245a18-e58a-4a18-acd2-ca420206be42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\QuadTree">
+      <UniqueIdentifier>{c0d6b5dd-9901-4199-92d1-a2b720332b8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MyStructure">
+      <UniqueIdentifier>{0c18a9b1-d598-4981-8dc5-2574cd964cf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MyStructure">
+      <UniqueIdentifier>{abb569eb-a12e-44fd-b0fc-b6460729ac0a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -60,6 +72,18 @@
     <ClCompile Include="CandidateListRtree.cpp">
       <Filter>Source Files\Algorithm</Filter>
     </ClCompile>
+    <ClCompile Include="Cell.cpp">
+      <Filter>Source Files\MyStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="CellManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GridBaseUpdateStrategy.cpp">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateStategyRtree.cpp">
+      <Filter>Source Files\Algorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Instance.h">
@@ -86,17 +110,38 @@
     <ClInclude Include="CandidateListRtree.h">
       <Filter>Header Files\Algorithm</Filter>
     </ClInclude>
-    <ClInclude Include="RStarBoundingBox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RStarTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RStarVisitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RStarBoundingBox.h">
+      <Filter>Header Files\RTree</Filter>
+    </ClInclude>
+    <ClInclude Include="RStarVisitor.h">
+      <Filter>Header Files\RTree</Filter>
+    </ClInclude>
+    <ClInclude Include="RStarTree.h">
+      <Filter>Header Files\RTree</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\Octree.h">
+      <Filter>Header Files\QuadTree</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\OctreePoint.h">
+      <Filter>Header Files\QuadTree</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\Vec3.h">
+      <Filter>Header Files\QuadTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Cell.h">
+      <Filter>Header Files\MyStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="CellManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GridBaseUpdateStrategy.h">
+      <Filter>Header Files\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateStategyRtree.h">
+      <Filter>Header Files\Algorithm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

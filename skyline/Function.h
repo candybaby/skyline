@@ -17,5 +17,8 @@ public:
 	static string convertDoubleToString(double &);
 	static bool DominateTest(Instance*, Instance*, int);
 	static string diffclock(clock_t ,clock_t);
+	static bool isBigger(double, double, double);
+	static bool isEqual(double, double, double);
+	static bool isBiggerEqual(double, double, double);
 };
 #endif

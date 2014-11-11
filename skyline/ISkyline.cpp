@@ -10,18 +10,20 @@ ISkyline::ISkyline(Model* model)
 {
 	Init();
 	_model = model;
+	_maxDimensions = model->GetMaxDimension();
 }
 
 void ISkyline::Init()
 {
 	_currentTimestamp = -1;
-	_slideWindowSize = SLIDE_WINDOW_SIZE;
-	_threshold = THRESHOLD;
+	_slideWindowSize = 60;
+	_threshold = 0.4;
 	_dimensions = DIMENSION;
 }
 
 ISkyline::~ISkyline(void)
 {
+	_slideWindow.clear();
 }
 
 void ISkyline::NextTimestamp()
@@ -53,4 +55,14 @@ void ISkyline::Delete(UncertainObject* uObject)
 int ISkyline::GetTimestamp()
 {
 	return _currentTimestamp;
+}
+
+void ISkyline::SetThreshold(double th)
+{
+	_threshold = th;
+}
+
+void ISkyline::SetWindowSize(int value)
+{
+	_slideWindowSize = value;
 }

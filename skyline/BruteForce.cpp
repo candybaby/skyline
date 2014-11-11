@@ -72,7 +72,7 @@ string BruteForce::GetSkylineResult()
 	{
 		string name = (*it)->GetName();
 		double pr = (*it)->GetSkylineProbability();
-		if (pr > _threshold)
+		if (Function::isBiggerEqual(pr , _threshold, OFFSET))
 		{
 			result.append("Name: ").append(name).append(", Pr: ").append(Function::convertDoubleToString(pr)).append("\n");
 		}

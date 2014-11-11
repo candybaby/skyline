@@ -1,20 +1,20 @@
 #pragma once
-#ifndef _CANDIDATE_LIST_RTREE_ 
-#define _CANDIDATE_LIST_RTREE_
+#ifndef _UPDATE_STATEGY_RTREE_ 
+#define _UPDATE_STATEGY_RTREE_
 #include <map>
+#include <time.h>
 #include "ISkyline.h"
 #include "RStarTree.h"
-#include <time.h>
 
 typedef RStarTree<UncertainObject *, DIMENSION, 3, 8> RTree;
 typedef RTree::BoundingBox BoundingBox;
 
-struct Visitor {
+struct UVisitor {
 	int count;
 	vector<UncertainObject*> uObjects;
 	bool ContinueVisiting;
 
-	Visitor() : count(0), ContinueVisiting(true) {};
+	UVisitor() : count(0), ContinueVisiting(true) {};
 
 	void operator()(const RTree::Leaf * const leaf) 
 	{
@@ -23,14 +23,15 @@ struct Visitor {
 	}
 };
 
-
 using namespace std;
-class CandidateListRtree : public ISkyline
+
+class UpdateStategyRtree : public ISkyline
 {
 public:
-	CandidateListRtree(void);
-	CandidateListRtree(Model*,bool);
-	~CandidateListRtree(void);
+	UpdateStategyRtree(void);
+	UpdateStategyRtree(Model*);
+	~UpdateStategyRtree(void);
+
 	void InsertObject(UncertainObject *);
 	void DeleteObject(UncertainObject *);
 	void ComputeSkyline();
@@ -41,13 +42,9 @@ private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
 	BoundingBox GetMBR(UncertainObject *);
 	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>);
-	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, int[DIMENSION]);
-	void Group();
-	void Normal();
 
-	bool _IsGroup;
-	map<int, vector<UncertainObject*>> _candidateList;
-	vector<UncertainObject*> _skyline;
-	RTree _candidateTree;
+	RTree _slideWindowTree;
+	RTree _maybeTree;
+	vector<UncertainObject*> _updateList;
 };
 #endif

@@ -20,6 +20,8 @@ public:
 	virtual void ComputeSkyline() = 0;
 	virtual string GetSkylineResult() = 0;
 	int GetTimestamp();
+	void SetThreshold(double);
+	void SetWindowSize(int);
 
 protected:
 	int _currentTimestamp;
@@ -28,7 +30,7 @@ protected:
 	double _threshold;
 	Model* _model;
 	vector<UncertainObject*> _slideWindow;
-	vector<UncertainObject*> _skylineResult;
+	vector<int> _maxDimensions;
 
 private:
 	void Init();

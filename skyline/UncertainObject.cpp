@@ -8,6 +8,12 @@ UncertainObject::UncertainObject(void)
 
 UncertainObject::~UncertainObject(void)
 {
+	while (instances.size() > 0)
+	{
+		Instance* delData = instances.back();
+		instances.pop_back();
+		delete delData;
+	}
 }
 
 void UncertainObject::SetName(string value)
