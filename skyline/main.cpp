@@ -153,9 +153,9 @@ double RunGBUS(string dataSet, double threshold, int windowSize)
 	{
 		gbus->NextTimestamp();
 
-		//int cT = gbus->GetTimestamp();
-		//cout << "Timestamp: " << cT << endl;
-		//cout << gbus->GetSkylineResult() << endl;
+		int cT = gbus->GetTimestamp();
+		resultFile << "Timestamp: " << cT << endl;
+		resultFile << gbus->GetSkylineResult() << endl;
 	}
 	end = clock();
 	delete gbus;
@@ -202,6 +202,7 @@ int main(int argc, char *argv[])
 	double _timeCLR = 0;
 	double _timeCLRG = 0;
 	double _timeBF = 0;
+	double _timeGBUS = 0;
 
 	double threshod[5] = {0.1,0.3,0.5,0.7,0.9};
 	//double threshod[1] = {0.9};
@@ -231,11 +232,11 @@ int main(int argc, char *argv[])
 
 		for (int i = 0 ;i < testCount; i++)
 		{
-			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
-			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
-			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
-			_timeBF += RunBF(dataSet, threshod[j], windowSize);
-			//RunGBUS();
+			//_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
+			//_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
+			//_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
+			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
 			processingRate += processUnit;
 			system("cls");
 			cout << "Now : " << processingRate << "%" << endl;
@@ -250,12 +251,14 @@ int main(int argc, char *argv[])
 		resultFile << "CLR Average Time : " << _timeCLR / testCount << endl;
 		resultFile << "CLRG Average Time : " << _timeCLRG / testCount << endl;
 		resultFile << "BF Average Time : " << _timeBF / testCount << endl;
+		resultFile << "GBUS Average Time : " << _timeGBUS / testCount << endl;
 		
 		//cout << "BF Average Time : " << _timeBF / TESTCOUNT << endl;
 		_timeUSR = 0;
 		_timeCLR = 0;
 		_timeCLRG = 0;
 		_timeBF = 0;
+		_timeGBUS = 0;
 	}
 	
 

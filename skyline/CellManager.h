@@ -6,6 +6,7 @@
 #include <map>
 #include <math.h>
 #include "Config.h"
+#include "Function.h"
 #include "Cell.h"
 #include "UncertainObject.h"
 
@@ -23,6 +24,8 @@ public:
 	vector<Instance*> GetMaybeDominate(vector<int>);
 
 	vector<Instance*> GetMaybeDominateMe(vector<int>);
+	void ComputeSkyline(double);
+	void Clear();
 private:
 	void Insert(Instance*);
 	void Delete(Instance*);

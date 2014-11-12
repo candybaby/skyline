@@ -19,61 +19,45 @@ GridBaseUpdateStrategy::~GridBaseUpdateStrategy(void)
 
 void GridBaseUpdateStrategy::InsertObject(UncertainObject* uObject)
 {
-	vector<UncertainObject*> canPruningObject = GetCanPruningObject(_maybeList->GetCompleteDominate(GetMaxDim(uObject)));
-
-	for (vector<UncertainObject*>::iterator it = canPruningObject.begin(); it < canPruningObject.end(); it++)
-	{
-		UncertainObject* temp = (*it);
-		_maybeList->Delete(temp);
-	}
-
-	vector<Instance*> temp = _maybeList->GetMaybeDominate(GetMinDim(uObject));
-	_updateList.insert(_updateList.end(), temp.begin(), temp.end());
-
 	
-
-	temp = _maybeList->GetMaybeDominateMe(GetMaxDim(uObject));
-	//_updateList.insert(_updateList.end(), temp.begin(), temp.end());
-
-	if (temp.size() != 0)
-	{
-		vector<Instance*> temp1 = uObject->GetInstances();
-		_updateList.insert(_updateList.end(), temp1.begin(), temp1.end());
-	}
-
-	_maybeList->Insert(uObject);
 }
 
 void GridBaseUpdateStrategy::DeleteObject(UncertainObject* uObject)
 {
-	vector<Instance*> temp = _maybeList->GetMaybeDominate(GetMinDim(uObject));
-	_updateList.insert(_updateList.end(), temp.begin(), temp.end());
-	_maybeList->Delete(uObject);
+	
 	
 }
 
 void GridBaseUpdateStrategy::ComputeSkyline()
 {
-	sort(_updateList.begin(), _updateList.end());
-	_updateList.erase(unique(_updateList.begin(), _updateList.end()), _updateList.end());
-	for (vector<Instance*>::iterator instamceIt = _updateList.begin(); instamceIt < _updateList.end(); instamceIt++)
+	_maybeList->Clear();
+	vector<UncertainObject*> tempObjects;
+	tempObjects.insert(tempObjects.end(), _slideWindow.begin(), _slideWindow.end());
+	for (vector<UncertainObject*>::iterator it = _slideWindow.begin(); it < _slideWindow.end(); it++)
 	{
-		Instance* instance = *instamceIt;
-		instance->ClearDominateMe();
-		vector<Instance*> needDominateTestList = _maybeList->GetMaybeDominateMe(instance->GetDimensions());
-		
-		for (vector<Instance*>::iterator instamceIt2 = needDominateTestList.begin(); instamceIt2 < needDominateTestList.end(); instamceIt2++)
+		UncertainObject* uObject = *it;
+		for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
 		{
-			if (instance->GetObjectName() != (*instamceIt2)->GetObjectName())
+			UncertainObject* uObject2 = *it2;
+			if (uObject->GetName() != uObject2->GetName())
 			{
-				if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+				if (CanDominate(uObject, uObject2)) // uObject dominate uObject2
 				{
-					instance->AddDominateMeInstance(*instamceIt2);
+					if (find(tempObjects.begin(), tempObjects.end(), uObject2) != tempObjects.end())
+					{
+						tempObjects.erase(find(tempObjects.begin(), tempObjects.end(), uObject2));
+					}
 				}
 			}
 		}
 	}
-	_updateList.clear();
+
+	for (vector<UncertainObject*>::iterator it = tempObjects.begin(); it < tempObjects.end(); it++)
+	{
+		_maybeList->Insert(*it);
+	}
+
+	_maybeList->ComputeSkyline(_threshold);
 }
 
 string GridBaseUpdateStrategy::GetSkylineResult()
@@ -161,5 +145,26 @@ vector<UncertainObject*> GridBaseUpdateStrategy::GetCanPruningObject(vector<Inst
 			result.push_back(_model->GetObjectByName(tIt->first));
 		}
 	}
+	return result;
+}
+
+bool GridBaseUpdateStrategy::CanDominate(UncertainObject* uObject1, UncertainObject* uObject2)
+{
+	vector<int> uObject1Max = GetMaxDim(uObject1);
+	vector<int> uObject2Min = GetMinDim(uObject2);
+	Instance* fake = new Instance;
+	for (vector<int>::iterator dimIt = uObject1Max.begin(); dimIt < uObject1Max.end(); dimIt++)
+	{
+		fake->AddDimensionValue(*dimIt);
+	}
+	Instance* fake2 = new Instance;
+	for (vector<int>::iterator dimIt = uObject2Min.begin(); dimIt < uObject2Min.end(); dimIt++)
+	{
+		fake2->AddDimensionValue(*dimIt);
+	}
+
+	bool result = Function::DominateTest(fake, fake2, _dimensions);
+	delete fake;
+	delete fake2;
 	return result;
 }

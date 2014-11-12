@@ -239,3 +239,45 @@ void CellManager::Delete(Instance* ins)
 	}
 	_cellsMap[index]->Delete(ins);
 }
+
+void CellManager::ComputeSkyline(double threshold)
+{
+	for (map<vector<int>, Cell*>::iterator it = _cellsMap.begin(); it != _cellsMap.end(); ++it)
+	{
+		vector<int> index = it->first;
+		vector<Instance*> instances = it->second->GetInstances();
+		vector<Instance*> instances2;
+		vector<vector<int>> cellIds = _PARMap.at(index);
+		for (vector<vector<int>>::iterator cellId = cellIds.begin(); cellId < cellIds.end(); cellId++)
+		{
+			vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
+			instances2.insert(instances2.end(), tempInstances.begin(), tempInstances.end());
+		}
+		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		{
+			Instance* instance = *instamceIt;
+			instance->ClearDominateMe();
+			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+			{
+				Instance* instance2 = *instamceIt2;
+				if (instance->GetObjectName() != instance2->GetObjectName())
+				{
+					if (Function::DominateTest(*instamceIt2, instance, DIMENSION))
+					{
+						instance->AddDominateMeInstance(*instamceIt2);
+					}
+				}
+			}
+		}
+	}
+}
+
+void CellManager::Clear()
+{
+	_objects.clear();
+	for (map<vector<int>, Cell*>::iterator it = _cellsMap.begin(); it != _cellsMap.end(); ++it)
+	{
+		delete it->second;
+		it->second = new Cell;
+	}
+}
