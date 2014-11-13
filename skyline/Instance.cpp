@@ -83,3 +83,13 @@ double Instance::GetSkylineProbability()
 
 	return result;
 }
+
+void Instance::SetCellId(vector<int> cellId)
+{
+	_cellId = cellId;
+}
+
+vector<int> Instance::GetCellId()
+{
+	return _cellId;
+}

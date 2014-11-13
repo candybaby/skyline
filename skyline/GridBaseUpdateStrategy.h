@@ -20,10 +20,10 @@ public:
 private:
 	vector<int> GetMaxDim(UncertainObject*);
 	vector<int> GetMinDim(UncertainObject*);
-	vector<UncertainObject*> GetCanPruningObject(vector<Instance*>);
 	bool CanDominate(UncertainObject*, UncertainObject*);
 
 	CellManager* _maybeList;
 	vector<Instance*> _updateList;
+	vector<vector<int>> _needUpdateCell;
 };
 #endif

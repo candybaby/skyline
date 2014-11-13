@@ -8,7 +8,7 @@ GridBaseUpdateStrategy::GridBaseUpdateStrategy(void)
 GridBaseUpdateStrategy::GridBaseUpdateStrategy(Model* model)
 	: ISkyline(model)
 {
-	_maybeList = new CellManager(4, model->GetMaxDimension());
+	_maybeList = new CellManager(3, model->GetMaxDimension());
 }
 
 
@@ -19,45 +19,64 @@ GridBaseUpdateStrategy::~GridBaseUpdateStrategy(void)
 
 void GridBaseUpdateStrategy::InsertObject(UncertainObject* uObject)
 {
+	//pruning 條件
+
+	// updateList add A可能dominate的物件的Cell
+	vector<vector<int>> temp = _maybeList->GetMaybeDominate(GetMinDim(uObject));
+	_needUpdateCell.insert(_needUpdateCell.end(), temp.begin(), temp.end());
+
+	// updateList add A
+	vector<Instance*> tempInstances = _maybeList->GetMaybeDominateMe(GetMaxDim(uObject));
+	if (tempInstances.size() != 0)
+	{
+		temp = _maybeList->GetCell(uObject);
+		_needUpdateCell.insert(_needUpdateCell.end(), temp.begin(), temp.end());
+	}
 	
+	_maybeList->Insert(uObject);
 }
 
 void GridBaseUpdateStrategy::DeleteObject(UncertainObject* uObject)
 {
-	
-	
+	// updateList add B可能dominate的物件的Cell
+	vector<vector<int>> temp = _maybeList->GetMaybeDominate(GetMinDim(uObject));
+	_needUpdateCell.insert(_needUpdateCell.end(), temp.begin(), temp.end());
+	_maybeList->Delete(uObject);
 }
 
 void GridBaseUpdateStrategy::ComputeSkyline()
 {
-	_maybeList->Clear();
-	vector<UncertainObject*> tempObjects;
-	tempObjects.insert(tempObjects.end(), _slideWindow.begin(), _slideWindow.end());
-	for (vector<UncertainObject*>::iterator it = _slideWindow.begin(); it < _slideWindow.end(); it++)
-	{
-		UncertainObject* uObject = *it;
-		for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
-		{
-			UncertainObject* uObject2 = *it2;
-			if (uObject->GetName() != uObject2->GetName())
-			{
-				if (CanDominate(uObject, uObject2)) // uObject dominate uObject2
-				{
-					if (find(tempObjects.begin(), tempObjects.end(), uObject2) != tempObjects.end())
-					{
-						tempObjects.erase(find(tempObjects.begin(), tempObjects.end(), uObject2));
-					}
-				}
-			}
-		}
-	}
+	//_maybeList->Clear();
+	//vector<UncertainObject*> tempObjects;
+	//tempObjects.insert(tempObjects.end(), _slideWindow.begin(), _slideWindow.end());
+	//for (vector<UncertainObject*>::iterator it = _slideWindow.begin(); it < _slideWindow.end(); it++)
+	//{
+	//	UncertainObject* uObject = *it;
+	//	for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
+	//	{
+	//		UncertainObject* uObject2 = *it2;
+	//		if (uObject->GetName() != uObject2->GetName())
+	//		{
+	//			if (CanDominate(uObject, uObject2)) // uObject dominate uObject2
+	//			{
+	//				if (find(tempObjects.begin(), tempObjects.end(), uObject2) != tempObjects.end())
+	//				{
+	//					tempObjects.erase(find(tempObjects.begin(), tempObjects.end(), uObject2));
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	for (vector<UncertainObject*>::iterator it = tempObjects.begin(); it < tempObjects.end(); it++)
-	{
-		_maybeList->Insert(*it);
-	}
+	//for (vector<UncertainObject*>::iterator it = tempObjects.begin(); it < tempObjects.end(); it++)
+	//{
+	//	_maybeList->Insert(*it);
+	//}
+	sort(_needUpdateCell.begin(), _needUpdateCell.end());
+	_needUpdateCell.erase(unique(_needUpdateCell.begin(), _needUpdateCell.end()), _needUpdateCell.end());
 
-	_maybeList->ComputeSkyline(_threshold);
+	_maybeList->ComputeSkyline(_needUpdateCell);
+	_needUpdateCell.clear();
 }
 
 string GridBaseUpdateStrategy::GetSkylineResult()
@@ -122,30 +141,6 @@ vector<int> GridBaseUpdateStrategy::GetMinDim(UncertainObject* uObject)
 		}
 	}
 	return minDim;
-}
-
-vector<UncertainObject*> GridBaseUpdateStrategy::GetCanPruningObject(vector<Instance*> instances)
-{
-	map<string, double> temp;
-	for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-	{
-		Instance* instance = (*instamceIt);
-		if (temp.find(instance->GetObjectName()) == temp.end()) {
-			// not found
-			temp.insert(pair<string, double> (instance->GetObjectName(), instance->GetProbability()));
-		} else {
-			temp.at(instance->GetObjectName()) += instance->GetProbability();
-		}
-	}
-	vector<UncertainObject*> result;
-	for(map<string, double>::iterator tIt = temp.begin(); tIt != temp.end(); tIt++)
-	{
-		if (Function::isBigger(tIt->second , 1 - _threshold, OFFSET))
-		{
-			result.push_back(_model->GetObjectByName(tIt->first));
-		}
-	}
-	return result;
 }
 
 bool GridBaseUpdateStrategy::CanDominate(UncertainObject* uObject1, UncertainObject* uObject2)

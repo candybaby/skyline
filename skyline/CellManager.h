@@ -21,11 +21,15 @@ public:
 	vector<UncertainObject*> GetObjects();
 
 	vector<Instance*> GetCompleteDominate(vector<int>);
-	vector<Instance*> GetMaybeDominate(vector<int>);
+	vector<vector<int>> GetMaybeDominate(vector<int>);
+	vector<vector<int>> GetMaybeDominateNotComplete(vector<int>, vector<int>);
 
 	vector<Instance*> GetMaybeDominateMe(vector<int>);
 	void ComputeSkyline(double);
+	void ComputeSkyline(vector<vector<int>>);
 	void Clear();
+	vector<vector<int>> GetCell(UncertainObject*);
+	vector<vector<int>> GetCell(vector<Instance*>);
 private:
 	void Insert(Instance*);
 	void Delete(Instance*);
@@ -33,12 +37,14 @@ private:
 	vector<vector<int>> GetDDR(vector<int>);
 	vector<vector<int>> GetDAR(vector<int>);
 	vector<vector<int>> GetPAR(vector<int>);
+	vector<vector<int>> GetPDR(vector<int>);
 
 	int _partNumber;
 	map<vector<int>, Cell*> _cellsMap;
 	map<vector<int>, vector<vector<int>>> _DDRMap;
 	map<vector<int>, vector<vector<int>>> _DARMap;
 	map<vector<int>, vector<vector<int>>> _PARMap;
+	map<vector<int>, vector<vector<int>>> _PDRMap;
 	vector<UncertainObject*> _objects;
 	vector<int> _unitLengthDim;
 };

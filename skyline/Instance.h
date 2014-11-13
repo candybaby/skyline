@@ -26,7 +26,10 @@ public:
 	void AddDominateMeInstance(Instance*);
 	void ClearDominateMe();
 	double GetSkylineProbability();
-	
+
+	void SetCellId(vector<int>);
+	vector<int> GetCellId();
+
 
 private:
 	string _name;
@@ -34,5 +37,6 @@ private:
 	double _probability;
 	vector<int> _dimension;
 	vector<Instance*> _dominateMeList;
+	vector<int> _cellId;
 };
 #endif

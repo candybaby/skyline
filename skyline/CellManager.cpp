@@ -24,6 +24,7 @@ CellManager::CellManager(int p, vector<int> maxDim)
 		_DDRMap.insert(pair<vector<int>, vector<vector<int>>> (cId, GetDDR(cId)));
 		_DARMap.insert(pair<vector<int>, vector<vector<int>>> (cId, GetDAR(cId)));
 		_PARMap.insert(pair<vector<int>, vector<vector<int>>> (cId, GetPAR(cId)));
+		_PDRMap.insert(pair<vector<int>, vector<vector<int>>> (cId, GetPDR(cId)));
 	}
 
 	for (int i=0;i<DIMENSION;i++)
@@ -46,6 +47,51 @@ void CellManager::Insert(UncertainObject* uObject)
 		Instance* instance = (*it);
 		Insert(instance);
 	}
+}
+
+vector<vector<int>> CellManager::GetCell(UncertainObject* uObject)
+{
+	vector<vector<int>> result;
+	vector<Instance*> instances = uObject->GetInstances();
+	for (vector<Instance*>::iterator it = instances.begin(); it < instances.end(); it++)
+	{
+		Instance* instance = (*it);
+		vector<int> index = instance->GetCellId();
+		if (index.size() == 0)
+		{
+			for (int i = 0; i < DIMENSION; i++)
+			{
+				index.push_back(instance->GetDimensions().at(i) / _unitLengthDim.at(i));
+			}
+		}
+		result.push_back(index);
+	}
+	sort(result.begin(), result.end());
+	result.erase(unique(result.begin(), result.end()), result.end());
+
+	return result;
+}
+
+vector<vector<int>> CellManager::GetCell(vector<Instance*> instances)
+{
+	vector<vector<int>> result;
+	for (vector<Instance*>::iterator it = instances.begin(); it < instances.end(); it++)
+	{
+		Instance* instance = (*it);
+		vector<int> index = instance->GetCellId();
+		if (index.size() == 0)
+		{
+			for (int i = 0; i < DIMENSION; i++)
+			{
+				index.push_back(instance->GetDimensions().at(i) / _unitLengthDim.at(i));
+			}
+		}
+		result.push_back(index);
+	}
+	sort(result.begin(), result.end());
+	result.erase(unique(result.begin(), result.end()), result.end());
+
+	return result;
 }
 
 void CellManager::Delete(UncertainObject* uObject)
@@ -152,6 +198,34 @@ vector<vector<int>> CellManager::GetPAR(vector<int> dimVal)
 	return result;
 }
 
+vector<vector<int>> CellManager::GetPDR(vector<int> dimVal)
+{
+	vector<vector<int>> result;
+	int count = 1;
+	for (int i = 0; i < DIMENSION; i++)
+	{
+		count *= (dimVal.at(i));
+	}
+
+	// 8
+	// 2 1
+
+	for (int i = 0; i < count; i++)
+	{
+		vector<int> cId;
+		cId.assign(dimVal.begin(), dimVal.end());
+		int tempVal = i;
+		for (int y = 0; y < DIMENSION; y++)
+		{
+			int aaa = dimVal.at(y); //2
+			cId.at(y) = tempVal % aaa;  //   0
+			tempVal = tempVal / aaa;    //   0
+		}
+		result.push_back(cId);
+	}
+	return result;
+}
+
 vector<Instance*> CellManager::GetCompleteDominate(vector<int> dimVal)
 {
 	vector<Instance*> temp;
@@ -177,10 +251,8 @@ vector<Instance*> CellManager::GetCompleteDominate(vector<int> dimVal)
 	return temp;
 }
 
-vector<Instance*> CellManager::GetMaybeDominate(vector<int> dimVal)
+vector<vector<int>> CellManager::GetMaybeDominate(vector<int> dimVal)
 {
-	vector<Instance*> temp;
-	
 	vector<int> oDimVal;
 	for (int i = 0; i < DIMENSION; i++)
 	{
@@ -188,15 +260,43 @@ vector<Instance*> CellManager::GetMaybeDominate(vector<int> dimVal)
 		oDimVal.push_back(temp);
 	}
 
-	vector<vector<int>> cellID = _DARMap.at(oDimVal);
-	for (vector<vector<int>>::iterator it = cellID.begin(); it < cellID.end(); it++)
+	return _DARMap.at(oDimVal);
+}
+
+vector<vector<int>> CellManager::GetMaybeDominateNotComplete(vector<int> minDimVal, vector<int> maxDimVal)
+{
+	vector<int> oMinDimVal, oMaxDimVal;
+	for (int i = 0; i < DIMENSION; i++)
+	{
+		int temp = minDimVal.at(i) / _unitLengthDim.at(i);
+		oMinDimVal.push_back(temp);
+		temp = maxDimVal.at(i) / _unitLengthDim.at(i);
+		oMaxDimVal.push_back(temp);
+	}
+	//******************************
+	vector<vector<int>> cellID = _DARMap.at(oMinDimVal); // ¦h
+	vector<vector<int>> cellID2 = _DDRMap.at(oMaxDimVal);
+	vector<vector<int>> diffCellID;
+	for (vector<vector<int>>::iterator cellId = cellID.begin(); cellId < cellID.end(); cellId++)
+	{
+		if (find(cellID2.begin(), cellID2.end(), *cellId) == cellID2.end())
+		{
+			diffCellID.push_back(*cellId);
+		}
+	}
+	/*vector<Instance*> temp;
+	for (vector<vector<int>>::iterator it = cellID2.begin(); it < cellID2.end(); it++)
 	{
 		vector<int> cId = *it;
 		vector<Instance*> cellInstances = _cellsMap[cId]->GetInstances();
 		temp.insert(temp.end(), cellInstances.begin(), cellInstances.end());
 	}
+	for (vector<Instance*>::iterator instamceIt = temp.begin(); instamceIt < temp.end(); instamceIt++)
+	{
+		(*instamceIt)->SetPruned(true);
+	}*/
 
-	return temp;
+	return diffCellID;
 }
 
 vector<Instance*> CellManager::GetMaybeDominateMe(vector<int> dimVal)
@@ -222,20 +322,26 @@ vector<Instance*> CellManager::GetMaybeDominateMe(vector<int> dimVal)
 
 void CellManager::Insert(Instance* ins)
 {
-	vector<int> index;
-	for (int i = 0; i < DIMENSION; i++)
+	vector<int> index = ins->GetCellId();
+	if (index.size() == 0)
 	{
-		index.push_back(ins->GetDimensions().at(i) / _unitLengthDim.at(i));
+		for (int i = 0; i < DIMENSION; i++)
+		{
+			index.push_back(ins->GetDimensions().at(i) / _unitLengthDim.at(i));
+		}
 	}
 	_cellsMap[index]->Insert(ins);
 }
 
 void CellManager::Delete(Instance* ins)
 {
-	vector<int> index;
-	for (int i = 0; i < DIMENSION; i++)
+	vector<int> index = ins->GetCellId();
+	if (index.size() == 0)
 	{
-		index.push_back(ins->GetDimensions().at(i) / _unitLengthDim.at(i));
+		for (int i = 0; i < DIMENSION; i++)
+		{
+			index.push_back(ins->GetDimensions().at(i) / _unitLengthDim.at(i));
+		}
 	}
 	_cellsMap[index]->Delete(ins);
 }
@@ -246,25 +352,117 @@ void CellManager::ComputeSkyline(double threshold)
 	{
 		vector<int> index = it->first;
 		vector<Instance*> instances = it->second->GetInstances();
-		vector<Instance*> instances2;
-		vector<vector<int>> cellIds = _PARMap.at(index);
-		for (vector<vector<int>>::iterator cellId = cellIds.begin(); cellId < cellIds.end(); cellId++)
+		if (instances.size() > 0)
 		{
-			vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
-			instances2.insert(instances2.end(), tempInstances.begin(), tempInstances.end());
-		}
-		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-		{
-			Instance* instance = *instamceIt;
-			instance->ClearDominateMe();
-			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+			vector<Instance*> instances2;
+			vector<Instance*> instances3;
+			vector<vector<int>> cellIds = _PDRMap.at(index);
+			for (vector<vector<int>>::iterator cellId = cellIds.begin(); cellId < cellIds.end(); cellId++)
 			{
-				Instance* instance2 = *instamceIt2;
-				if (instance->GetObjectName() != instance2->GetObjectName())
+				vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
+				instances2.insert(instances2.end(), tempInstances.begin(), tempInstances.end());
+			}
+			vector<vector<int>> celldifferenceIds;
+			vector<vector<int>> temp = _PARMap.at(index);
+			// ®t¤Î
+			for (vector<vector<int>>::iterator cellId = temp.begin(); cellId < temp.end(); cellId++)
+			{
+				if (find(cellIds.begin(), cellIds.end(), *cellId) == cellIds.end())
 				{
-					if (Function::DominateTest(*instamceIt2, instance, DIMENSION))
+					celldifferenceIds.push_back(*cellId);
+				}
+			}
+
+			for (vector<vector<int>>::iterator cellId = celldifferenceIds.begin(); cellId < celldifferenceIds.end(); cellId++)
+			{
+				vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
+				instances3.insert(instances3.end(), tempInstances.begin(), tempInstances.end());
+			}
+
+			for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+			{
+				Instance* instance = *instamceIt;
+				instance->ClearDominateMe();
+				for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+				{
+					Instance* instance2 = *instamceIt2;
+					if (instance->GetObjectName() != instance2->GetObjectName())
 					{
-						instance->AddDominateMeInstance(*instamceIt2);
+						instance->AddDominateMeInstance(instance2);
+					}
+				}
+				for (vector<Instance*>::iterator instamceIt2 = instances3.begin(); instamceIt2 < instances3.end(); instamceIt2++)
+				{
+					Instance* instance2 = *instamceIt2;
+					if (instance->GetObjectName() != instance2->GetObjectName())
+					{
+						if (Function::DominateTest(instance2, instance, DIMENSION))
+						{
+							instance->AddDominateMeInstance(instance2);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void CellManager::ComputeSkyline(vector<vector<int>> needUpdateIds)
+{
+	for (vector<vector<int>>::iterator updateId = needUpdateIds.begin(); updateId < needUpdateIds.end(); updateId++)
+	{
+		vector<int> index = *updateId;
+		vector<Instance*> instances = _cellsMap.at(index)->GetInstances();
+	
+		if (instances.size() > 0)
+		{
+			vector<Instance*> instances2;
+			vector<Instance*> instances3;
+			vector<vector<int>> cellIds = _PDRMap.at(index);
+			for (vector<vector<int>>::iterator cellId = cellIds.begin(); cellId < cellIds.end(); cellId++)
+			{
+				vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
+				instances2.insert(instances2.end(), tempInstances.begin(), tempInstances.end());
+			}
+			vector<vector<int>> celldifferenceIds;
+			vector<vector<int>> temp = _PARMap.at(index);
+			// ®t¤Î
+			for (vector<vector<int>>::iterator cellId = temp.begin(); cellId < temp.end(); cellId++)
+			{
+				if (find(cellIds.begin(), cellIds.end(), *cellId) == cellIds.end())
+				{
+					celldifferenceIds.push_back(*cellId);
+				}
+			}
+
+			for (vector<vector<int>>::iterator cellId = celldifferenceIds.begin(); cellId < celldifferenceIds.end(); cellId++)
+			{
+				vector<Instance*> tempInstances = _cellsMap.at(*cellId)->GetInstances();
+				instances3.insert(instances3.end(), tempInstances.begin(), tempInstances.end());
+			}
+
+			for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+			{
+				Instance* instance = *instamceIt;
+				instance->ClearDominateMe();
+				for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+				{
+					Instance* instance2 = *instamceIt2;
+					if (instance->GetObjectName() != instance2->GetObjectName())
+					{
+						instance->AddDominateMeInstance(instance2);
+					}
+				}
+				for (vector<Instance*>::iterator instamceIt2 = instances3.begin(); instamceIt2 < instances3.end(); instamceIt2++)
+				{
+					Instance* instance2 = *instamceIt2;
+					if (instance->GetObjectName() != instance2->GetObjectName())
+					{
+						if (Function::DominateTest(instance2, instance, DIMENSION))
+						{
+							instance->AddDominateMeInstance(instance2);
+						}
 					}
 				}
 			}
