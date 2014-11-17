@@ -1,7 +1,19 @@
 ------------------------Setting------------------------
-	DataSet:	1000-2-cluster.tsv
+	DataSet:	1000-5-cluster.tsv
 	Dimensions:	2
-	WindowSize:	20
+	WindowSize:	50
 	Threshold:	0.1
+	TestCount:	1
+-------------------------------------------------------
+USR Average Time : 0
+CLR Average Time : 0
+CLRG Average Time : 373497
+BF Average Time : 0
+GBUS Average Time : 0
+------------------------Setting------------------------
+	DataSet:	1000-5-cluster.tsv
+	Dimensions:	2
+	WindowSize:	50
+	Threshold:	0.3
 	TestCount:	1
 -------------------------------------------------------

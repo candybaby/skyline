@@ -165,6 +165,11 @@ void CandidateListRtree::Group()
 	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
 	_skyline = x.uObjects;
 
+	/*ofstream resultFile;
+	resultFile.open("CLR_Count.txt", ios::out | ios::app);
+	resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _skyline.size() << endl;
+	resultFile.close();*/
+
 	map<string, vector<UncertainObject*>> groups;
 	map<string, string> tempMap;
 	groups.clear();

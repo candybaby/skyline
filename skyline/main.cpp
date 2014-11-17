@@ -235,8 +235,8 @@ int main(int argc, char *argv[])
 			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
 			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
 			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
-			_timeBF += RunBF(dataSet, threshod[j], windowSize);
-			_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
+			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			//_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
 			processingRate += processUnit;
 			system("cls");
 			cout << "Now : " << processingRate << "%" << endl;
