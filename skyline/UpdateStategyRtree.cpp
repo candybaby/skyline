@@ -140,10 +140,12 @@ void UpdateStategyRtree::ComputeSkyline()
 		
 		
 	}
+	
 	/*ofstream resultFile;
 	resultFile.open("Mine_Update_Count.txt", ios::out | ios::app);
-	resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _updateList.size() << endl;
+	resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _updateList.size() << "\tTreeSize:\t" << _maybeTree.GetSize() << endl;
 	resultFile.close();*/
+	
 	_updateList.clear();
 }
 

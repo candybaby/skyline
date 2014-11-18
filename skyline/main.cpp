@@ -222,13 +222,13 @@ int main(int argc, char *argv[])
 		cout << "	TestCount:	" << testCount << endl;
 		cout << "-------------------------------------------------------" << endl;*/
 
-		resultFile << "------------------------Setting------------------------" << endl;
+		/*resultFile << "------------------------Setting------------------------" << endl;
 		resultFile << "	DataSet:	" << dataSet << endl;
 		resultFile << "	Dimensions:	" << DIMENSION << endl;
 		resultFile << "	WindowSize:	" << windowSize << endl;
 		resultFile << "	Threshold:	" << threshod[j] << endl;
 		resultFile << "	TestCount:	" << testCount << endl;
-		resultFile << "-------------------------------------------------------" << endl;
+		resultFile << "-------------------------------------------------------" << endl;*/
 
 		for (int i = 0 ;i < testCount; i++)
 		{
@@ -246,12 +246,21 @@ int main(int argc, char *argv[])
 		////cout << "CLR Average Time : " << _timeCLR / testCount << endl;
 		//cout << "CLRG Average Time : " << _timeCLRG / testCount << endl;
 		//cout << "BF Average Time : " << _timeBF / testCount << endl;
+		resultFile << dataSet << "\t" 
+					<< windowSize << "\t" 
+					<< DIMENSION << "\t"
+					<< threshod[j] << "\t"
+					<< _timeUSR / testCount << "\t"
+					<< _timeCLR / testCount << "\t" 
+					<< _timeCLRG / testCount << "\t"
+					<< _timeBF / testCount << "\t"
+					<< _timeGBUS / testCount << endl;
 
-		resultFile << "USR Average Time : " << _timeUSR / testCount << endl;
+		/*resultFile << "USR Average Time : " << _timeUSR / testCount << endl;
 		resultFile << "CLR Average Time : " << _timeCLR / testCount << endl;
 		resultFile << "CLRG Average Time : " << _timeCLRG / testCount << endl;
 		resultFile << "BF Average Time : " << _timeBF / testCount << endl;
-		resultFile << "GBUS Average Time : " << _timeGBUS / testCount << endl;
+		resultFile << "GBUS Average Time : " << _timeGBUS / testCount << endl;*/
 		
 		//cout << "BF Average Time : " << _timeBF / TESTCOUNT << endl;
 		_timeUSR = 0;
