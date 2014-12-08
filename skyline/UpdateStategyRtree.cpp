@@ -141,10 +141,10 @@ void UpdateStategyRtree::ComputeSkyline()
 		
 	}
 	
-	/*ofstream resultFile;
-	resultFile.open("Mine_Update_Count.txt", ios::out | ios::app);
-	resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _updateList.size() << "\tTreeSize:\t" << _maybeTree.GetSize() << endl;
-	resultFile.close();*/
+	//ofstream resultFile;
+	//resultFile.open("Mine_Update_Count.txt", ios::out | ios::app);
+	//resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _updateList.size() << "\tTreeSize:\t" << _maybeTree.GetSize() << endl;
+	//resultFile.close();
 	
 	_updateList.clear();
 }
@@ -225,30 +225,45 @@ vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObjec
 		UncertainObject* targetObject = *It;
 		bool needCompute = true;
 		BoundingBox bb = GetMBR(targetObject);
-		for (int i=0; i< DIMENSION;i++)
-		{
-			if (bb.edges[i].first < minDim.at(i))
-			{
-				needCompute = false;
-			}
-		}
-		if (needCompute)
-		{
-			vector<Instance*> targetInstances = targetObject->GetInstances();
-			double tempProbability = 0;
-			for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
-			{
-				Instance* targetInstance = *instancesIt;
 
-				if (Function::DominateTest(fake, targetInstance, _dimensions))
+		Instance* fake1 = new Instance;
+		for (int i = 0; i< DIMENSION; i++)
+		{
+			fake1->AddDimensionValue(bb.edges[i].first);
+		}
+
+		if (Function::DominateTest(fake, fake1, _dimensions))
+		{
+			needCompute = false;
+			result.push_back(targetObject);
+		}
+		else
+		{
+			for (int i = 0; i< DIMENSION; i++)
+			{
+				if (bb.edges[i].first < minDim.at(i))
 				{
-					tempProbability += targetInstance->GetProbability();
+					needCompute = false;
 				}
 			}
-			// targetObject 無法成為skyline
-			if (Function::isBigger(tempProbability , 1 - _threshold, OFFSET))
+			if (needCompute)
 			{
-				result.push_back(targetObject);
+				vector<Instance*> targetInstances = targetObject->GetInstances();
+				double tempProbability = 0;
+				for (vector<Instance*>::iterator instancesIt = targetInstances.begin(); instancesIt < targetInstances.end(); instancesIt++)
+				{
+					Instance* targetInstance = *instancesIt;
+
+					if (Function::DominateTest(fake, targetInstance, _dimensions))
+					{
+						tempProbability += targetInstance->GetProbability();
+					}
+				}
+				// targetObject 無法成為skyline
+				if (Function::isBigger(tempProbability, 1 - _threshold, OFFSET))
+				{
+					result.push_back(targetObject);
+				}
 			}
 		}
 	}

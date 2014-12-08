@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 	double _timeBF = 0;
 	double _timeGBUS = 0;
 
-	double threshod[11] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 	//double threshod[1] = {0.9};
 	int processingRate = 0;
 	double processUnit = (100.0 / 11) / testCount;
@@ -235,8 +235,8 @@ int main(int argc, char *argv[])
 			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
 			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
 			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
-			_timeBF += RunBF(dataSet, threshod[j], windowSize);
-			_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
+			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			//_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
 			processingRate += processUnit;
 			system("cls");
 			cout << "Now : " << processingRate << "%" << endl;
@@ -252,9 +252,9 @@ int main(int argc, char *argv[])
 					<< threshod[j] << "\t"
 					<< _timeUSR / testCount << "\t"
 					<< _timeCLR / testCount << "\t" 
-					<< _timeCLRG / testCount << "\t"
-					<< _timeBF / testCount << "\t"
-					<< _timeGBUS / testCount << endl;
+					<< _timeCLRG / testCount << endl;
+					//<< _timeBF / testCount << "\t"
+					//<< _timeGBUS / testCount << endl;
 
 		/*resultFile << "USR Average Time : " << _timeUSR / testCount << endl;
 		resultFile << "CLR Average Time : " << _timeCLR / testCount << endl;
