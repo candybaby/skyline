@@ -47,15 +47,15 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 		//_maybeTree.RemoveItem(pruningObject);
 	}
 	///////////////////////////////////////////////////////////////////////////////////
-	int minDAR[DIMENSION], maxDAR[DIMENSION];
+	int minPDR[DIMENSION], maxPDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
 	{
-		minDAR[i] = mbr.edges[i].first;
-		maxDAR[i] = _maxDimensions.at(i);
+		minPDR[i] = mbr.edges[i].first;
+		maxPDR[i] = _maxDimensions.at(i);
 	}
 
-	BoundingBox searchDAR = Bounds(minDAR, maxDAR);
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitorWithoutPruned());
+	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
 	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,16 +79,16 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 {
 	BoundingBox mbr = GetMBR(uObject);
-	int minDAR[DIMENSION], maxDAR[DIMENSION];
+	int minPDR[DIMENSION], maxPDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
 	{
-		minDAR[i] = mbr.edges[i].first;
-		maxDAR[i] = _maxDimensions.at(i);
+		minPDR[i] = mbr.edges[i].first;
+		maxPDR[i] = _maxDimensions.at(i);
 	}
 
-	BoundingBox searchDAR = Bounds(minDAR, maxDAR);
+	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
 	UVisitorWithoutPruned x;
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDAR), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
 	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	///////////////////////////////////////////////////////////////////////////////////////
 	_maybeTree.RemoveItem(uObject);
