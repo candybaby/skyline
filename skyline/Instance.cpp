@@ -55,6 +55,12 @@ void Instance::AddDominateMeInstance(Instance* instance)
 	_dominateMeList.push_back(instance);
 }
 
+void Instance::RemoveDominateMeInstance(Instance* instance)
+{
+	_dominateMeList.erase(remove(_dominateMeList.begin(), _dominateMeList.end(), instance), _dominateMeList.end());
+	//_dominateMeList.erase(find(_dominateMeList.begin(), _dominateMeList.end(), instance));
+}
+
 void Instance::ClearDominateMe()
 {
 	_dominateMeList.clear();

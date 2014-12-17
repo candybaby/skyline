@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 class Instance
@@ -24,6 +25,7 @@ public:
 	vector<int> GetDimensions();
 
 	void AddDominateMeInstance(Instance*);
+	void RemoveDominateMeInstance(Instance*);
 	void ClearDominateMe();
 	double GetSkylineProbability();
 

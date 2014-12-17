@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 	double _timeBF = 0;
 	double _timeGBUS = 0;
 
-	double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	double threshod[11] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
 	//double threshod[1] = {0.9};
 	int processingRate = 0;
 	double processUnit = (100.0 / 11) / testCount;

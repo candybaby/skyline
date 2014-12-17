@@ -56,7 +56,26 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 
 	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
 	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
-	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
+	//_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
+	// fix
+	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
+	{
+		UncertainObject* uObjectTest = *it;
+		vector<Instance*> instances = uObjectTest->GetInstances();
+		vector<Instance*> instancesEnter = uObject->GetInstances();
+		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		{
+			Instance* instance = *instamceIt;
+			for (vector<Instance*>::iterator instamceIt2 = instancesEnter.begin(); instamceIt2 < instancesEnter.end(); instamceIt2++)
+			{
+				if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+				{
+					instance->AddDominateMeInstance(*instamceIt2);
+				}
+			}
+		}
+	}
+	// fix end
 	////////////////////////////////////////////////////////////////////////////////////
 
 	int minPAR[DIMENSION], maxPAR[DIMENSION];
@@ -70,7 +89,28 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitorWithoutPruned());
 	if (x.count != 0)
 	{
-		_updateList.push_back(uObject);
+		//_updateList.push_back(uObject);
+		// fix
+		vector<Instance*> instances = uObject->GetInstances();
+		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		{
+			Instance* instance = *instamceIt;
+			for (vector<UncertainObject*>::iterator it2 = x.uObjects.begin(); it2 < x.uObjects.end(); it2++)
+			{
+				UncertainObject* uObject2 = *it2;
+				vector<Instance*> instances2 = uObject2->GetInstances();
+
+				for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+				{
+					if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+					{
+						instance->AddDominateMeInstance(*instamceIt2);
+					}
+				}
+				
+			}
+		}
+		// fix end
 	}
 	//////////////////////////////////////////////////////////////////////////////////////
 	_maybeTree.Insert(uObject, mbr);
@@ -89,13 +129,31 @@ void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
 	UVisitorWithoutPruned x;
 	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
-	_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
+	//_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
+	// fix
+	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
+	{
+		UncertainObject* uObjectTest = *it;
+		vector<Instance*> instances = uObjectTest->GetInstances();
+		vector<Instance*> instancesLeaves = uObject->GetInstances();
+		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		{
+			Instance* instance = *instamceIt;
+			
+			for (vector<Instance*>::iterator instamceIt2 = instancesLeaves.begin(); instamceIt2 < instancesLeaves.end(); instamceIt2++)
+			{
+				instance->RemoveDominateMeInstance(*instamceIt2);
+			}
+		}
+	}
+	// fix end
 	///////////////////////////////////////////////////////////////////////////////////////
 	_maybeTree.RemoveItem(uObject);
 }
 
 void UpdateStategyRtree::ComputeSkyline()
 {
+	/*
 	sort(_updateList.begin(), _updateList.end());
 	_updateList.erase(unique(_updateList.begin(), _updateList.end()), _updateList.end());
 	for (vector<UncertainObject*>::iterator it = _updateList.begin(); it < _updateList.end(); it++)
@@ -147,6 +205,7 @@ void UpdateStategyRtree::ComputeSkyline()
 	//resultFile.close();
 	
 	_updateList.clear();
+	*/
 }
 
 string UpdateStategyRtree::GetSkylineResult()
