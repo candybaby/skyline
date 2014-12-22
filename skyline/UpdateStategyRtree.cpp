@@ -86,8 +86,9 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchPAR = Bounds(minPAR, maxPAR);
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitorWithoutPruned());
-	if (x.count != 0)
+	UVisitor y;
+	y = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitor());
+	if (y.count != 0)
 	{
 		//_updateList.push_back(uObject);
 		// fix
@@ -95,7 +96,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 		{
 			Instance* instance = *instamceIt;
-			for (vector<UncertainObject*>::iterator it2 = x.uObjects.begin(); it2 < x.uObjects.end(); it2++)
+			for (vector<UncertainObject*>::iterator it2 = y.uObjects.begin(); it2 < y.uObjects.end(); it2++)
 			{
 				UncertainObject* uObject2 = *it2;
 				vector<Instance*> instances2 = uObject2->GetInstances();
