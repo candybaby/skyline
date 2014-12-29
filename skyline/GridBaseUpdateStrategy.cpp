@@ -163,3 +163,14 @@ bool GridBaseUpdateStrategy::CanDominate(UncertainObject* uObject1, UncertainObj
 	delete fake2;
 	return result;
 }
+
+int GridBaseUpdateStrategy::GetSkylineCount()
+{
+	return 0;
+}
+
+int GridBaseUpdateStrategy::GetUpdateCount()
+{
+	return 0;
+}
+

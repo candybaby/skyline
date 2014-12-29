@@ -17,6 +17,9 @@ public:
 	void DeleteObject(UncertainObject *);
 	void ComputeSkyline();
 	string GetSkylineResult();
+
+	int GetSkylineCount();
+	int GetUpdateCount();
 private:
 	vector<int> GetMaxDim(UncertainObject*);
 	vector<int> GetMinDim(UncertainObject*);

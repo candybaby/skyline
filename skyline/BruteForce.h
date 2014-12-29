@@ -15,5 +15,8 @@ public:
 	void ComputeSkyline();
 	string GetSkylineResult();
 
+	int GetSkylineCount();
+	int GetUpdateCount();
+
 };
 #endif

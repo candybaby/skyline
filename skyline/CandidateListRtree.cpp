@@ -21,6 +21,7 @@ CandidateListRtree::~CandidateListRtree(void)
 
 void CandidateListRtree::InsertObject(UncertainObject* uObject)
 {
+	_updateCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
 	int minDDR[DIMENSION], maxDDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
@@ -164,7 +165,7 @@ void CandidateListRtree::Group()
 	Visitor x;
 	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
 	_skyline = x.uObjects;
-
+	_updateCount = x.count;
 	//ofstream resultFile;
 	//resultFile.open("CLR_Count.txt", ios::out | ios::app);
 	//resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _skyline.size() << endl;
@@ -281,6 +282,7 @@ void CandidateListRtree::Normal()
 	Visitor x;
 	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
 	_skyline = x.uObjects;
+	_updateCount = x.count;
 
 	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
 	{
@@ -436,4 +438,23 @@ vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObjec
 	}
 	delete fake;
 	return result;
+}
+
+int CandidateListRtree::GetSkylineCount()
+{
+	int result = 0;
+	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
+	{
+		double pr = (*it)->GetSkylineProbability();
+		if (Function::isBiggerEqual(pr, _threshold, OFFSET))
+		{
+			result++;
+		}
+	}
+	return result;
+}
+
+int CandidateListRtree::GetUpdateCount()
+{
+	return _updateCount;
 }

@@ -79,3 +79,22 @@ string BruteForce::GetSkylineResult()
 	}
 	return result;
 }
+
+int BruteForce::GetSkylineCount()
+{
+	int result = 0;
+	for (vector<UncertainObject*>::iterator it = _slideWindow.begin(); it < _slideWindow.end(); it++)
+	{
+		double pr = (*it)->GetSkylineProbability();
+		if (Function::isBiggerEqual(pr, _threshold, OFFSET))
+		{
+			result++;
+		}
+	}
+	return result;
+}
+
+int BruteForce::GetUpdateCount()
+{
+	return _slideWindow.size();
+}

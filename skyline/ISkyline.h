@@ -19,6 +19,8 @@ public:
 	virtual void DeleteObject(UncertainObject *) = 0;
 	virtual void ComputeSkyline() = 0;
 	virtual string GetSkylineResult() = 0;
+	virtual int GetSkylineCount() = 0;
+	virtual int GetUpdateCount() = 0;
 	int GetTimestamp();
 	void SetThreshold(double);
 	void SetWindowSize(int);

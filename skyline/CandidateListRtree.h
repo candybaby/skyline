@@ -37,6 +37,9 @@ public:
 
 	string GetSkylineResult();
 
+	int GetSkylineCount();
+	int GetUpdateCount();
+
 private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
 	BoundingBox GetMBR(UncertainObject *);
@@ -49,5 +52,6 @@ private:
 	vector<UncertainObject*> _skyline;
 	vector<UncertainObject*> _prunedObject;
 	RTree _candidateTree;
+	int _updateCount;
 };
 #endif

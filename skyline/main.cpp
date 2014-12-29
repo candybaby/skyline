@@ -14,6 +14,9 @@
 #include "UpdateStategyRtree.h"
 
 ofstream resultFile;
+int numberOfSkyline;
+int numberOfUpdateCount;
+double numberOfTimestamp;
 
 double RunUSR(string dataSet, double threshold, int windowSize)
 {
@@ -24,16 +27,20 @@ double RunUSR(string dataSet, double threshold, int windowSize)
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 
 	int dataCount = model->GetSize();
-	int testTimestamp = dataCount + windowSize;
+	double testTimestamp = dataCount + windowSize;
+	numberOfTimestamp = testTimestamp;
 
 	begin = clock();
 	UpdateStategyRtree* usr = new UpdateStategyRtree(model);
 	usr->SetThreshold(threshold);
 	usr->SetWindowSize(windowSize);
+	numberOfSkyline = 0;
+	numberOfUpdateCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		usr->NextTimestamp();
-
+		//numberOfSkyline += usr->GetSkylineCount();
+		numberOfUpdateCount += usr->GetUpdateCount();
 		/*int cT = usr->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << usr->GetSkylineResult() << endl;*/
@@ -43,7 +50,7 @@ double RunUSR(string dataSet, double threshold, int windowSize)
 	delete usr;
 	delete model;
 	//cout << "USR Time elapsed: " << Function::diffclock(end, begin) << " ms"<< endl;
-	return (end - begin);
+	return (end - begin) / testTimestamp;
 }
 
 double RunCLRG(string dataSet, double threshold, int windowSize)
@@ -54,16 +61,20 @@ double RunCLRG(string dataSet, double threshold, int windowSize)
 	clock_t end = clock();
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
-	int testTimestamp = dataCount + windowSize;
+	double testTimestamp = dataCount + windowSize;
+	numberOfTimestamp = testTimestamp;
 	begin = clock();
 
 	CandidateListRtree* CLRG = new CandidateListRtree(model, true);
 	CLRG->SetThreshold(threshold);
 	CLRG->SetWindowSize(windowSize);
+	numberOfSkyline = 0;
+	numberOfUpdateCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLRG->NextTimestamp();
-
+		//numberOfSkyline += CLRG->GetSkylineCount();
+		numberOfUpdateCount += CLRG->GetUpdateCount();
 		/*int cT = CLRG->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLRG->GetSkylineResult() << endl;*/
@@ -73,7 +84,7 @@ double RunCLRG(string dataSet, double threshold, int windowSize)
 	delete CLRG;
 	delete model;
 	//cout << "CL group Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
-	return (end - begin);
+	return (end - begin) / testTimestamp;
 }
 
 double RunCLR(string dataSet, double threshold, int windowSize)
@@ -84,17 +95,21 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	clock_t end = clock();
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
-	int testTimestamp = dataCount + windowSize;
+	double testTimestamp = dataCount + windowSize;
+	numberOfTimestamp = testTimestamp;
 
 
 	begin = clock();
 	CandidateListRtree* CLR = new CandidateListRtree(model, false);
 	CLR->SetThreshold(threshold);
 	CLR->SetWindowSize(windowSize);
+	numberOfSkyline = 0;
+	numberOfUpdateCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLR->NextTimestamp();
-
+		//numberOfSkyline += CLR->GetSkylineCount();
+		numberOfUpdateCount += CLR->GetUpdateCount();
 		/*int cT = CLR->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLR->GetSkylineResult() << endl;*/
@@ -103,7 +118,7 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	delete CLR;
 	delete model;
 	//cout << "CL normal Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
-	return (end - begin);
+	return (end - begin) / testTimestamp;
 }
 
 double RunBF(string dataSet, double threshold, int windowSize)
@@ -114,16 +129,20 @@ double RunBF(string dataSet, double threshold, int windowSize)
 	clock_t end = clock();
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
-	int testTimestamp = dataCount + windowSize;
+	double testTimestamp = dataCount + windowSize;
+	numberOfTimestamp = testTimestamp;
 
 	begin = clock();
 	BruteForce* bf = new BruteForce(model);
 	bf->SetThreshold(threshold);
 	bf->SetWindowSize(windowSize);
+	numberOfSkyline = 0;
+	numberOfUpdateCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		bf->NextTimestamp();
-
+		//numberOfSkyline += bf->GetSkylineCount();
+		numberOfUpdateCount += bf->GetUpdateCount();
 		//int cT = bf->GetTimestamp();
 		//resultFile << "Timestamp: " << cT << endl;
 		//resultFile << bf->GetSkylineResult() << endl;
@@ -132,7 +151,7 @@ double RunBF(string dataSet, double threshold, int windowSize)
 	delete bf;
 	delete model;
 	//cout << "BF Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
-	return (end - begin);
+	return (end - begin) / testTimestamp;
 }
 
 double RunGBUS(string dataSet, double threshold, int windowSize)
@@ -144,6 +163,7 @@ double RunGBUS(string dataSet, double threshold, int windowSize)
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
 	int testTimestamp = dataCount + windowSize;
+	numberOfTimestamp = testTimestamp;
 
 	begin = clock();
 	GridBaseUpdateStrategy* gbus = new GridBaseUpdateStrategy(model);
@@ -204,16 +224,16 @@ int main(int argc, char *argv[])
 	double _timeBF = 0;
 	double _timeGBUS = 0;
 
-	double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-	//double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
+	//double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+	double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
 	//double threshod[1] = {0.9};
 	int processingRate = 0;
-	double processUnit = (100.0 / 11) / testCount;
+	double processUnit = (100.0 / 5) / testCount;
 
 	system("cls");
 	cout << "Now : " << processingRate << "%" << endl;
 
-	for (int j = 0; j< 11;j++)
+	for (int j = 0; j< 5;j++)
 	{
 		/*cout << "------------------------Setting------------------------" << endl;
 		cout << "	DataSet:	" << dataSet << endl;
@@ -234,9 +254,13 @@ int main(int argc, char *argv[])
 		for (int i = 0 ;i < testCount; i++)
 		{
 			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
-			//_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
-			//_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
-			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			resultFile << "MINE" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeUSR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
+			resultFile << "CLR" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
+			resultFile << "CLRG" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLRG / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			resultFile << "BF" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeBF / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
 			//_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
 			processingRate += processUnit;
 			system("cls");
@@ -247,11 +271,11 @@ int main(int argc, char *argv[])
 		////cout << "CLR Average Time : " << _timeCLR / testCount << endl;
 		//cout << "CLRG Average Time : " << _timeCLRG / testCount << endl;
 		//cout << "BF Average Time : " << _timeBF / testCount << endl;
-		resultFile << dataSet << "\t" 
+		/*resultFile << dataSet << "\t" 
 					<< windowSize << "\t" 
 					<< DIMENSION << "\t"
 					<< threshod[j] << "\t"
-					<< _timeUSR / testCount << endl;
+					<< _timeUSR / testCount << "\t" */
 					//<< _timeCLR / testCount << "\t" 
 					//<< _timeCLRG / testCount << endl;
 					//<< _timeBF / testCount << "\t"

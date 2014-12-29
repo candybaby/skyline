@@ -14,11 +14,11 @@ UpdateStategyRtree::UpdateStategyRtree(Model* model)
 UpdateStategyRtree::~UpdateStategyRtree(void)
 {
 	_maybeTree.~RStarTree();
-	_updateList.clear();
 }
 
 void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 {
+	_updateCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
 	int minDDR[DIMENSION], maxDDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
@@ -60,6 +60,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	// fix
 	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
 	{
+		_updateCount++;
 		UncertainObject* uObjectTest = *it;
 		vector<Instance*> instances = uObjectTest->GetInstances();
 		vector<Instance*> instancesEnter = uObject->GetInstances();
@@ -92,6 +93,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	{
 		//_updateList.push_back(uObject);
 		// fix
+		_updateCount++;
 		vector<Instance*> instances = uObject->GetInstances();
 		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 		{
@@ -134,6 +136,7 @@ void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 	// fix
 	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
 	{
+		_updateCount++;
 		UncertainObject* uObjectTest = *it;
 		vector<Instance*> instances = uObjectTest->GetInstances();
 		vector<Instance*> instancesLeaves = uObject->GetInstances();
@@ -331,3 +334,24 @@ vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObjec
 	return result;
 }
 
+int UpdateStategyRtree::GetSkylineCount()
+{
+	int result = 0;
+	UVisitorWithoutPruned x;
+	x = _maybeTree.Query(RTree::AcceptAny(), UVisitorWithoutPruned());
+	vector<UncertainObject*> temp = x.uObjects;
+	for (vector<UncertainObject*>::iterator it = temp.begin(); it < temp.end(); it++)
+	{
+		double pr = (*it)->GetSkylineProbability();
+		if (Function::isBiggerEqual(pr, _threshold, OFFSET))
+		{
+			result++;
+		}
+	}
+	return result;
+}
+
+int UpdateStategyRtree::GetUpdateCount()
+{
+	return _updateCount;
+}
