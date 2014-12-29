@@ -23,12 +23,22 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 {
 	_updateCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
+	int* mbr_min;
+	int* mbr_max;
+	mbr_min = new int[DIMENSION];
+	mbr_max = new int[DIMENSION];
 	int minDDR[DIMENSION], maxDDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
 	{
 		minDDR[i] = mbr.edges[i].second;
 		maxDDR[i] = _maxDimensions.at(i);
+		mbr_min[i] = mbr.edges[i].first;
+		mbr_max[i] = mbr.edges[i].second;
 	}
+
+	uObject->SetMin(mbr_min);
+	uObject->SetMax(mbr_max);
+	
 
 	BoundingBox searchDDR = Bounds(minDDR, maxDDR);
 	Visitor x;
@@ -240,6 +250,7 @@ void CandidateListRtree::Group()
 	}
 	//cout << "group : " << groups.size() << endl;
 	//groups.push_back(_skyline);
+	
 
 	for(map<string, vector<UncertainObject*>>::iterator gIt = groups.begin(); gIt != groups.end(); gIt++)
 	{
@@ -257,15 +268,18 @@ void CandidateListRtree::Group()
 				{
 					vector<Instance*> instances = uObject->GetInstances();
 
-					for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+					if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
 					{
-						vector<Instance*> instances2 = uObject2->GetInstances();
-						Instance* instance = *instamceIt;
-						for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+						for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 						{
-							if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+							vector<Instance*> instances2 = uObject2->GetInstances();
+							Instance* instance = *instamceIt;
+							for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
 							{
-								instance->AddDominateMeInstance(*instamceIt2);
+								if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+								{
+									instance->AddDominateMeInstance(*instamceIt2);
+								}
 							}
 						}
 					}
@@ -304,16 +318,18 @@ void CandidateListRtree::Normal()
 			if (uObject != uObject2)
 			{
 				vector<Instance*> instances = uObject->GetInstances();
-
-				for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+				if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
 				{
-					vector<Instance*> instances2 = uObject2->GetInstances();
-					Instance* instance = *instamceIt;
-					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+					for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 					{
-						if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+						vector<Instance*> instances2 = uObject2->GetInstances();
+						Instance* instance = *instamceIt;
+						for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
 						{
-							instance->AddDominateMeInstance(*instamceIt2);
+							if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+							{
+								instance->AddDominateMeInstance(*instamceIt2);
+							}
 						}
 					}
 				}

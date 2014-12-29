@@ -3,6 +3,7 @@
 #define _UNCERTAIN_OBJECT_
 #include <vector>
 #include "Instance.h"
+#include "Config.h"
 
 using namespace std;
 class UncertainObject
@@ -24,10 +25,18 @@ public:
 	void SetPruned(bool);
 	bool GetPruned();
 
+	void SetMax(int*);
+	int* GetMax();
+
+	void SetMin(int*);
+	int* GetMin();
+
 private:
 	string name;
 	int timestamp;
 	vector<Instance*> instances;
 	bool _isPruned;
+	int* _max;
+	int* _min;
 };
 #endif

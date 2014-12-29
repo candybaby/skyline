@@ -67,3 +67,22 @@ bool UncertainObject::GetPruned()
 {
 	return _isPruned;
 }
+
+
+void UncertainObject::SetMax(int* max)
+{
+	_max = max;
+}
+int* UncertainObject::GetMax()
+{
+	return _max;
+}
+
+void UncertainObject::SetMin(int* min)
+{
+	_min = min;
+}
+int* UncertainObject::GetMin()
+{
+	return _min;
+}

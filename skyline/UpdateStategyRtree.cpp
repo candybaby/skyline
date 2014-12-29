@@ -20,12 +20,20 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 {
 	_updateCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
+	int* mbr_min;
+	int* mbr_max;
+	mbr_min = new int[DIMENSION];
+	mbr_max = new int[DIMENSION];
 	int minDDR[DIMENSION], maxDDR[DIMENSION];
 	for (int i=0; i< DIMENSION;i++)
 	{
 		minDDR[i] = mbr.edges[i].second;
 		maxDDR[i] = _maxDimensions.at(i);
+		mbr_min[i] = mbr.edges[i].first;
+		mbr_max[i] = mbr.edges[i].second;
 	}
+	uObject->SetMin(mbr_min);
+	uObject->SetMax(mbr_max);
 
 	BoundingBox searchDDR = Bounds(minDDR, maxDDR);
 	UVisitorWithoutPruned x;
@@ -94,6 +102,41 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 		//_updateList.push_back(uObject);
 		// fix
 		_updateCount++;
+		//for (vector<UncertainObject*>::iterator it2 = y.uObjects.begin(); it2 < y.uObjects.end(); it2++)
+		//{
+		//	vector<Instance*> instances = uObject->GetInstances();
+		//	UncertainObject* uObject2 = *it2;
+		//	if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
+		//	{
+		//		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		//		{
+		//			Instance* instance = *instamceIt;
+		//			vector<Instance*> instances2 = uObject2->GetInstances();
+
+		//			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+		//			{
+		//				instance->AddDominateMeInstance(*instamceIt2);
+		//			}
+		//		}
+		//	}
+		//	else
+		//	{
+		//		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		//		{
+		//			Instance* instance = *instamceIt;
+		//			vector<Instance*> instances2 = uObject2->GetInstances();
+
+		//			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+		//			{
+		//				if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+		//				{
+		//					instance->AddDominateMeInstance(*instamceIt2);
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
+		
 		vector<Instance*> instances = uObject->GetInstances();
 		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 		{

@@ -225,15 +225,15 @@ int main(int argc, char *argv[])
 	double _timeGBUS = 0;
 
 	//double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-	double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
-	//double threshod[1] = {0.9};
+	//double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
+	double threshod[1] = {0.5};
 	int processingRate = 0;
 	double processUnit = (100.0 / 5) / testCount;
 
 	system("cls");
 	cout << "Now : " << processingRate << "%" << endl;
 
-	for (int j = 0; j< 5;j++)
+	for (int j = 0; j< 1;j++)
 	{
 		/*cout << "------------------------Setting------------------------" << endl;
 		cout << "	DataSet:	" << dataSet << endl;
@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
 			resultFile << "CLR" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
 			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
 			resultFile << "CLRG" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLRG / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
-			_timeBF += RunBF(dataSet, threshod[j], windowSize);
-			resultFile << "BF" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeBF / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
+			//resultFile << "BF" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeBF / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
 			//_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);
 			processingRate += processUnit;
 			system("cls");
