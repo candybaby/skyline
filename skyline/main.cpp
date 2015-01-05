@@ -16,6 +16,7 @@
 ofstream resultFile;
 int numberOfSkyline;
 int numberOfUpdateCount;
+int numberOfPrunedCount;
 double numberOfTimestamp;
 
 double RunUSR(string dataSet, double threshold, int windowSize)
@@ -36,11 +37,13 @@ double RunUSR(string dataSet, double threshold, int windowSize)
 	usr->SetWindowSize(windowSize);
 	numberOfSkyline = 0;
 	numberOfUpdateCount = 0;
+	numberOfPrunedCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		usr->NextTimestamp();
-		//numberOfSkyline += usr->GetSkylineCount();
+		numberOfSkyline += usr->GetSkylineCount();
 		numberOfUpdateCount += usr->GetUpdateCount();
+		numberOfPrunedCount += usr->GetPrunedCount();
 		/*int cT = usr->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << usr->GetSkylineResult() << endl;*/
@@ -70,11 +73,13 @@ double RunCLRG(string dataSet, double threshold, int windowSize)
 	CLRG->SetWindowSize(windowSize);
 	numberOfSkyline = 0;
 	numberOfUpdateCount = 0;
+	numberOfPrunedCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLRG->NextTimestamp();
-		//numberOfSkyline += CLRG->GetSkylineCount();
+		numberOfSkyline += CLRG->GetSkylineCount();
 		numberOfUpdateCount += CLRG->GetUpdateCount();
+		numberOfPrunedCount += CLRG->GetPrunedCount();
 		/*int cT = CLRG->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLRG->GetSkylineResult() << endl;*/
@@ -105,11 +110,13 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	CLR->SetWindowSize(windowSize);
 	numberOfSkyline = 0;
 	numberOfUpdateCount = 0;
+	numberOfPrunedCount = 0;
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLR->NextTimestamp();
-		//numberOfSkyline += CLR->GetSkylineCount();
+		numberOfSkyline += CLR->GetSkylineCount();
 		numberOfUpdateCount += CLR->GetUpdateCount();
+		numberOfPrunedCount += CLR->GetPrunedCount();
 		/*int cT = CLR->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLR->GetSkylineResult() << endl;*/
@@ -225,15 +232,15 @@ int main(int argc, char *argv[])
 	double _timeGBUS = 0;
 
 	//double threshod[11] = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
-	//double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
-	double threshod[1] = {0.5};
+	double threshod[5] = { 0.1, 0.3, 0.5, 0.7, 0.9 };
+	//double threshod[1] = {0.5};
 	int processingRate = 0;
 	double processUnit = (100.0 / 5) / testCount;
 
 	system("cls");
 	cout << "Now : " << processingRate << "%" << endl;
 
-	for (int j = 0; j< 1;j++)
+	for (int j = 0; j< 5;j++)
 	{
 		/*cout << "------------------------Setting------------------------" << endl;
 		cout << "	DataSet:	" << dataSet << endl;
@@ -254,11 +261,11 @@ int main(int argc, char *argv[])
 		for (int i = 0 ;i < testCount; i++)
 		{
 			_timeUSR += RunUSR(dataSet, threshod[j], windowSize);
-			resultFile << "MINE" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeUSR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			resultFile << "MINE" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeUSR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << "\t" << numberOfSkyline / numberOfTimestamp << "\t" << numberOfPrunedCount / numberOfTimestamp << endl;
 			_timeCLR += RunCLR(dataSet, threshod[j], windowSize);
-			resultFile << "CLR" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			resultFile << "CLR" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLR / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << "\t" << numberOfSkyline / numberOfTimestamp << "\t" << numberOfPrunedCount / numberOfTimestamp << endl;
 			_timeCLRG += RunCLRG(dataSet, threshod[j], windowSize);
-			resultFile << "CLRG" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLRG / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
+			resultFile << "CLRG" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeCLRG / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << "\t" << numberOfSkyline / numberOfTimestamp << "\t" << numberOfPrunedCount / numberOfTimestamp << endl;
 			//_timeBF += RunBF(dataSet, threshod[j], windowSize);
 			//resultFile << "BF" << "\t" << dataSet << "\t" << windowSize << "\t" << DIMENSION << "\t" << threshod[j] << "\t" << _timeBF / testCount << "\t" << numberOfUpdateCount / numberOfTimestamp << endl;
 			//_timeGBUS += RunGBUS(dataSet, threshod[j], windowSize);

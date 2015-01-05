@@ -19,6 +19,7 @@ UpdateStategyRtree::~UpdateStategyRtree(void)
 void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 {
 	_updateCount = 0;
+	_prunedCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
 	int* mbr_min;
 	int* mbr_max;
@@ -52,6 +53,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	{
 		UncertainObject* pruningObject = *It;
 		pruningObject->SetPruned(true);
+		_prunedCount++;
 		//_maybeTree.RemoveItem(pruningObject);
 	}
 	///////////////////////////////////////////////////////////////////////////////////
@@ -102,42 +104,59 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 		//_updateList.push_back(uObject);
 		// fix
 		_updateCount++;
-		//for (vector<UncertainObject*>::iterator it2 = y.uObjects.begin(); it2 < y.uObjects.end(); it2++)
-		//{
-		//	vector<Instance*> instances = uObject->GetInstances();
-		//	UncertainObject* uObject2 = *it2;
-		//	if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
-		//	{
-		//		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-		//		{
-		//			Instance* instance = *instamceIt;
-		//			vector<Instance*> instances2 = uObject2->GetInstances();
+		for (vector<UncertainObject*>::iterator it2 = y.uObjects.begin(); it2 < y.uObjects.end(); it2++)
+		{
+			vector<Instance*> instances = uObject->GetInstances();
+			UncertainObject* uObject2 = *it2;
+			//if (Function::FullDominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
+			BoundingBox mbr = GetMBR(uObject);
+			Instance* fake1 = new Instance;
+			for (int i = 0; i< DIMENSION; i++)
+			{
+				fake1->AddDimensionValue(mbr.edges[i].first);
+			}
 
-		//			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
-		//			{
-		//				instance->AddDominateMeInstance(*instamceIt2);
-		//			}
-		//		}
-		//	}
-		//	else
-		//	{
-		//		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-		//		{
-		//			Instance* instance = *instamceIt;
-		//			vector<Instance*> instances2 = uObject2->GetInstances();
+			BoundingBox mbr2 = GetMBR(uObject2);
+			Instance* fake2 = new Instance;
+			for (int i = 0; i< DIMENSION; i++)
+			{
+				fake2->AddDimensionValue(mbr2.edges[i].second);
+			}
+			if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
+			{
+				for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+				{
+					Instance* instance = *instamceIt;
+					vector<Instance*> instances2 = uObject2->GetInstances();
 
-		//			for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
-		//			{
-		//				if (Function::DominateTest(*instamceIt2, instance, _dimensions))
-		//				{
-		//					instance->AddDominateMeInstance(*instamceIt2);
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
+					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+					{
+						instance->AddDominateMeInstance(*instamceIt2);
+					}
+				}
+			}
+			else
+			{
+				for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+				{
+					Instance* instance = *instamceIt;
+					vector<Instance*> instances2 = uObject2->GetInstances();
+
+					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+					{
+						if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+						{
+							instance->AddDominateMeInstance(*instamceIt2);
+						}
+					}
+				}
+			}
+
+			delete fake1;
+			delete fake2;
+		}
 		
-		vector<Instance*> instances = uObject->GetInstances();
+		/*vector<Instance*> instances = uObject->GetInstances();
 		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 		{
 			Instance* instance = *instamceIt;
@@ -155,7 +174,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 				}
 				
 			}
-		}
+		}*/
 		// fix end
 	}
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -330,12 +349,12 @@ vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObjec
 	{
 		UncertainObject* targetObject = *It;
 		bool needCompute = true;
-		BoundingBox bb = GetMBR(targetObject);
+		//BoundingBox bb = GetMBR(targetObject);
 
 		Instance* fake1 = new Instance;
 		for (int i = 0; i< DIMENSION; i++)
 		{
-			fake1->AddDimensionValue(bb.edges[i].first);
+			fake1->AddDimensionValue(targetObject->GetMin()[i]);
 		}
 
 		if (Function::DominateTest(fake, fake1, _dimensions))
@@ -347,7 +366,7 @@ vector<UncertainObject*> UpdateStategyRtree::PruningMethod(vector<UncertainObjec
 		{
 			for (int i = 0; i< DIMENSION; i++)
 			{
-				if (bb.edges[i].first < minDim.at(i))
+				if (targetObject->GetMin()[i] < minDim.at(i))
 				{
 					needCompute = false;
 				}
@@ -397,4 +416,9 @@ int UpdateStategyRtree::GetSkylineCount()
 int UpdateStategyRtree::GetUpdateCount()
 {
 	return _updateCount;
+}
+
+int UpdateStategyRtree::GetPrunedCount()
+{
+	return _prunedCount;
 }

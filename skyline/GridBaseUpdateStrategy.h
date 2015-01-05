@@ -20,6 +20,7 @@ public:
 
 	int GetSkylineCount();
 	int GetUpdateCount();
+	int GetPrunedCount();
 private:
 	vector<int> GetMaxDim(UncertainObject*);
 	vector<int> GetMinDim(UncertainObject*);

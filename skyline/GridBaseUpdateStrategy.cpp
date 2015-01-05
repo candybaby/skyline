@@ -174,3 +174,7 @@ int GridBaseUpdateStrategy::GetUpdateCount()
 	return 0;
 }
 
+int GridBaseUpdateStrategy::GetPrunedCount()
+{
+	return 0;
+}

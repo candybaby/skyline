@@ -98,3 +98,8 @@ int BruteForce::GetUpdateCount()
 {
 	return _slideWindow.size();
 }
+
+int BruteForce::GetPrunedCount()
+{
+	return 0;
+}

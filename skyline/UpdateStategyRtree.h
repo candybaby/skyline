@@ -57,6 +57,7 @@ public:
 
 	int GetSkylineCount();
 	int GetUpdateCount();
+	int GetPrunedCount();
 
 private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
@@ -66,5 +67,6 @@ private:
 	//RTree _slideWindowTree;
 	RTree _maybeTree;
 	int _updateCount;
+	int _prunedCount;
 };
 #endif

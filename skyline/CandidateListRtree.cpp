@@ -22,6 +22,7 @@ CandidateListRtree::~CandidateListRtree(void)
 void CandidateListRtree::InsertObject(UncertainObject* uObject)
 {
 	_updateCount = 0;
+	_prunedCount = 0;
 	BoundingBox mbr = GetMBR(uObject);
 	int* mbr_min;
 	int* mbr_max;
@@ -64,6 +65,7 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 		UncertainObject* pruningObject = *It;
 		_candidateTree.RemoveItem(pruningObject);
 		_prunedObject.push_back(pruningObject);
+		_prunedCount++;
 	}
 
 	int minPAR[DIMENSION], maxPAR[DIMENSION];
@@ -266,10 +268,22 @@ void CandidateListRtree::Group()
 				UncertainObject* uObject2 = *it2;
 				if (uObject != uObject2)
 				{
-					vector<Instance*> instances = uObject->GetInstances();
-
-					if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
+					BoundingBox mbr = GetMBR(uObject);
+					Instance* fake1 = new Instance;
+					for (int i = 0; i< DIMENSION; i++)
 					{
+						fake1->AddDimensionValue(mbr.edges[i].second);
+					}
+
+					BoundingBox mbr2 = GetMBR(uObject2);
+					Instance* fake2 = new Instance;
+					for (int i = 0; i< DIMENSION; i++)
+					{
+						fake2->AddDimensionValue(mbr2.edges[i].first);
+					}
+					if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
+					{
+						vector<Instance*> instances = uObject->GetInstances();
 						for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 						{
 							vector<Instance*> instances2 = uObject2->GetInstances();
@@ -283,6 +297,8 @@ void CandidateListRtree::Group()
 							}
 						}
 					}
+					delete fake1;
+					delete fake2;
 				}
 			}
 		}
@@ -317,9 +333,22 @@ void CandidateListRtree::Normal()
 			UncertainObject* uObject2 = *it2;
 			if (uObject != uObject2)
 			{
-				vector<Instance*> instances = uObject->GetInstances();
-				if (Function::DominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
+				BoundingBox mbr = GetMBR(uObject);
+				Instance* fake1 = new Instance;
+				for (int i = 0; i< DIMENSION; i++)
 				{
+					fake1->AddDimensionValue(mbr.edges[i].second);
+				}
+
+				BoundingBox mbr2 = GetMBR(uObject2);
+				Instance* fake2 = new Instance;
+				for (int i = 0; i< DIMENSION; i++)
+				{
+					fake2->AddDimensionValue(mbr2.edges[i].first);
+				}
+				if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
+				{
+					vector<Instance*> instances = uObject->GetInstances();
 					for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 					{
 						vector<Instance*> instances2 = uObject2->GetInstances();
@@ -333,6 +362,8 @@ void CandidateListRtree::Normal()
 						}
 					}
 				}
+				delete fake1;
+				delete fake2;
 			}
 		}
 	}	
@@ -409,12 +440,12 @@ vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObjec
 	{
 		UncertainObject* targetObject = *It;
 		bool needCompute = true;
-		BoundingBox bb = GetMBR(targetObject);
+		//BoundingBox bb = GetMBR(targetObject);
 
 		Instance* fake1 = new Instance;
 		for (int i = 0; i< DIMENSION; i++)
 		{
-			fake1->AddDimensionValue(bb.edges[i].first);
+			fake1->AddDimensionValue(targetObject->GetMin()[i]);
 		}
 
 		if (Function::DominateTest(fake, fake1, _dimensions))
@@ -426,7 +457,7 @@ vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObjec
 		{
 			for (int i = 0; i< DIMENSION; i++)
 			{
-				if (bb.edges[i].first < minDim.at(i))
+				if (targetObject->GetMin()[i] < minDim.at(i))
 				{
 					needCompute = false;
 				}
@@ -473,4 +504,9 @@ int CandidateListRtree::GetSkylineCount()
 int CandidateListRtree::GetUpdateCount()
 {
 	return _updateCount;
+}
+
+int CandidateListRtree::GetPrunedCount()
+{
+	return _prunedCount;
 }

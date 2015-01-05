@@ -39,6 +39,7 @@ public:
 
 	int GetSkylineCount();
 	int GetUpdateCount();
+	int GetPrunedCount();
 
 private:
 	BoundingBox Bounds(int[DIMENSION], int[DIMENSION]);
@@ -53,5 +54,6 @@ private:
 	vector<UncertainObject*> _prunedObject;
 	RTree _candidateTree;
 	int _updateCount;
+	int _prunedCount;
 };
 #endif

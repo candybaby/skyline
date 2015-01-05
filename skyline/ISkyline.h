@@ -21,6 +21,7 @@ public:
 	virtual string GetSkylineResult() = 0;
 	virtual int GetSkylineCount() = 0;
 	virtual int GetUpdateCount() = 0;
+	virtual int GetPrunedCount() = 0;
 	int GetTimestamp();
 	void SetThreshold(double);
 	void SetWindowSize(int);

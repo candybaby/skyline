@@ -17,6 +17,7 @@ public:
 
 	int GetSkylineCount();
 	int GetUpdateCount();
+	int GetPrunedCount();
 
 };
 #endif

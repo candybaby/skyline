@@ -18,6 +18,7 @@ public:
 	static string convertDoubleToString(double &);
 	static bool DominateTest(Instance*, Instance*, int);
 	static bool DominateTest(UncertainObject*, UncertainObject*, int);
+	static bool FullDominateTest(UncertainObject*, UncertainObject*, int);
 	static string diffclock(clock_t ,clock_t);
 	static bool isBigger(double, double, double);
 	static bool isEqual(double, double, double);

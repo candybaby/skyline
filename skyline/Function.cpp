@@ -42,6 +42,28 @@ bool Function::DominateTest(UncertainObject* a, UncertainObject* b, int dim)
 	return dominateTemp;
 }
 
+// true if a dominate b
+bool Function::FullDominateTest(UncertainObject* a, UncertainObject* b, int dim)
+{
+	bool dominateTemp = false;
+
+	int* aD = a->GetMax();
+	int* bD = b->GetMin();
+
+	for (int i = 0; i < dim; i++)
+	{
+		if (aD[i] > bD[i])
+		{
+			return false;
+		}
+		else if (aD[i] < bD[i])
+		{
+			dominateTemp = true;
+		}
+	}
+	return dominateTemp;
+}
+
 // split
 vector<string> Function::split(const std::string &sourceString, char delim, std::vector<std::string> &resultVector) 
 {
