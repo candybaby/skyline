@@ -32,6 +32,7 @@ void ISkyline::NextTimestamp()
 	Delete(_model->GetObjectByTimestamp(_currentTimestamp - _slideWindowSize));
 	Insert(_model->GetObjectByTimestamp(_currentTimestamp));
 	ComputeSkyline();
+
 }
 
 void ISkyline::Insert(UncertainObject* uObject)

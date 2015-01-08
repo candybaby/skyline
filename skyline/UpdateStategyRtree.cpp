@@ -8,7 +8,8 @@ UpdateStategyRtree::UpdateStategyRtree(void)
 UpdateStategyRtree::UpdateStategyRtree(Model* model)
 	: ISkyline(model)
 {
-
+	_updateCount = 0;
+	_prunedCount = 0;
 }
 
 UpdateStategyRtree::~UpdateStategyRtree(void)
@@ -18,8 +19,7 @@ UpdateStategyRtree::~UpdateStategyRtree(void)
 
 void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 {
-	_updateCount = 0;
-	_prunedCount = 0;
+
 	BoundingBox mbr = GetMBR(uObject);
 	int* mbr_min;
 	int* mbr_max;
@@ -415,10 +415,14 @@ int UpdateStategyRtree::GetSkylineCount()
 
 int UpdateStategyRtree::GetUpdateCount()
 {
-	return _updateCount;
+	int result = _updateCount;
+	_updateCount = 0;
+	return result;
 }
 
 int UpdateStategyRtree::GetPrunedCount()
 {
-	return _prunedCount;
+	int result = _prunedCount;
+	_prunedCount = 0;
+	return result;
 }
