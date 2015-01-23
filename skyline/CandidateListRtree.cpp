@@ -65,7 +65,7 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 	{
 		UncertainObject* pruningObject = *It;
 		_candidateTree.RemoveItem(pruningObject);
-		//_prunedObject.push_back(pruningObject);
+		_prunedObject.push_back(pruningObject);
 		_prunedCount++;
 	}
 
@@ -116,7 +116,7 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 				_prunedCount++;
 				UncertainObject* pruningObject = *It;
 				_candidateList.at(indexCL).erase(find(_candidateList.at(indexCL).begin(), _candidateList.at(indexCL).end(), pruningObject));
-				//_prunedObject.push_back(pruningObject);
+				_prunedObject.push_back(pruningObject);
 			}
 			_candidateList.at(indexCL).push_back(uObject);
 		}
@@ -128,10 +128,10 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 void CandidateListRtree::DeleteObject(UncertainObject* uObject)
 {
 	_candidateTree.RemoveItem(uObject);
-	/*if (find(_prunedObject.begin(), _prunedObject.end(),uObject) != _prunedObject.end())
+	if (find(_prunedObject.begin(), _prunedObject.end(),uObject) != _prunedObject.end())
 	{
 		_prunedObject.erase(find(_prunedObject.begin(), _prunedObject.end(), uObject));
-	}*/
+	}
 	int indexCL = _currentTimestamp;
 	if (_candidateList.find(indexCL) != _candidateList.end())
 	{
@@ -179,7 +179,7 @@ void CandidateListRtree::Group()
 	_skyline.clear();
 	Visitor x;
 	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
-	_skyline = x.uObjects;
+	//vector<UncertainObject*> candList = x.uObjects;
 	_updateCount = x.count;
 	//ofstream resultFile;
 	//resultFile.open("CLR_Count.txt", ios::out | ios::app);
@@ -259,6 +259,7 @@ void CandidateListRtree::Group()
 
 	for(map<string, vector<UncertainObject*>>::iterator gIt = groups.begin(); gIt != groups.end(); gIt++)
 	{
+		//_updateCount = groups.size();
 		vector<UncertainObject*> tempSkyline = gIt->second;
 		vector<UncertainObject*> tempSkyline2;
 		tempSkyline2.insert(tempSkyline2.begin(),tempSkyline.begin(),tempSkyline.end());
@@ -266,6 +267,230 @@ void CandidateListRtree::Group()
 		for (vector<UncertainObject*>::iterator it = tempSkyline.begin(); it < tempSkyline.end(); it++)
 		{
 			UncertainObject* uObject = *it;
+			uObject->NeedReCompute();
+			bool needCompute = true;
+			BoundingBox mbr = GetMBR(uObject);
+			Instance* fake_min = new Instance;
+			for (int i = 0; i< DIMENSION; i++)
+			{
+				fake_min->AddDimensionValue(mbr.edges[i].first);
+			}
+			for (vector<UncertainObject*>::iterator it2 = tempSkyline2.begin(); it2 < tempSkyline2.end(); it2++)
+			{
+				UncertainObject* uObject2 = *it2;
+				if (uObject != uObject2)
+				{
+					vector<Instance*> instances2 = uObject2->GetInstances();
+					
+					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+					{
+						if (Function::DominateTest(*instamceIt2, fake_min, _dimensions))
+						{
+							fake_min->AddDominateMeInstance(*instamceIt2);
+						}
+					}
+				}
+			}
+			if (Function::isBigger(_threshold, fake_min->GetSkylineProbability(), OFFSET))
+			{
+				needCompute = false;
+			}
+			else
+			{
+				for (vector<UncertainObject*>::iterator it2 = tempSkyline2.begin(); it2 < tempSkyline2.end(); it2++)
+				{
+					UncertainObject* uObject2 = *it2;
+					if (uObject != uObject2)
+					{
+						vector<Instance*> instances = uObject->GetInstances();
+						for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+						{
+							vector<Instance*> instances2 = uObject2->GetInstances();
+							Instance* instance = *instamceIt;
+							for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+							{
+								if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+								{
+									instance->AddDominateMeInstance(*instamceIt2);
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			if (needCompute)
+			{
+				double pr = uObject->GetSkylineProbability();
+				if (Function::isBiggerEqual(pr, _threshold, OFFSET))
+				{
+					_skyline.push_back(uObject);
+				}
+			}
+			
+		}
+	}
+}
+
+void CandidateListRtree::Normal()
+{
+	////cout << "Tree Size: " << _candidateTree.GetSize() << endl;
+	//_skyline.clear();
+	//Visitor x;
+	//x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
+	//_skyline = x.uObjects;
+	//_updateCount = x.count;
+
+	//for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
+	//{
+	//	// 清空我被誰Dominate的陣列
+	//	UncertainObject* uObject = *it;
+	//	vector<Instance*> instances = uObject->GetInstances();
+	//	for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+	//	{
+	//		(*instamceIt)->ClearDominateMe();
+	//	}
+	//}
+
+	//for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
+	//{
+	//	UncertainObject* uObject = *it;
+	//	//for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
+	//	for (vector<UncertainObject*>::iterator it2 = _skyline.begin(); it2 < _skyline.end(); it2++)
+	//	{
+	//		UncertainObject* uObject2 = *it2;
+	//		if (uObject != uObject2)
+	//		{
+	//			//BoundingBox mbr = GetMBR(uObject);
+	//			//Instance* fake1 = new Instance;
+	//			//for (int i = 0; i< DIMENSION; i++)
+	//			//{
+	//			//	fake1->AddDimensionValue(mbr.edges[i].second);
+	//			//}
+
+	//			//BoundingBox mbr2 = GetMBR(uObject2);
+	//			//Instance* fake2 = new Instance;
+	//			//for (int i = 0; i< DIMENSION; i++)
+	//			//{
+	//			//	fake2->AddDimensionValue(mbr2.edges[i].first);
+	//			//}
+	//			//if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
+	//			//{
+	//				vector<Instance*> instances = uObject->GetInstances();
+	//				for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+	//				{
+	//					vector<Instance*> instances2 = uObject2->GetInstances();
+	//					Instance* instance = *instamceIt;
+	//					for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
+	//					{
+	//						if (Function::DominateTest(*instamceIt2, instance, _dimensions))
+	//						{
+	//							instance->AddDominateMeInstance(*instamceIt2);
+	//						}
+	//					}
+	//				}
+	//			/*}
+	//			delete fake1;
+	//			delete fake2;*/
+	//		}
+	//	}
+	//}	
+
+	//cout << "Tree Size: " << _candidateTree.GetSize() << endl;
+	_skyline.clear();
+	Visitor x;
+	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
+	//_skyline = x.uObjects;
+	////_updateCount = x.count;
+	//ofstream resultFile;
+	//resultFile.open("CLR_Count.txt", ios::out | ios::app);
+	//resultFile << "Time:\t" << _currentTimestamp << "\tCount:\t" << _skyline.size() << endl;
+	//resultFile.close();
+
+	map<string, vector<UncertainObject*>> groups;
+	map<string, string> tempMap;
+	groups.clear();
+	tempMap.clear();
+
+
+	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
+	{
+		// 清空我被誰Dominate的陣列
+		UncertainObject* uObject = *it;
+		vector<Instance*> instances = uObject->GetInstances();
+		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
+		{
+			(*instamceIt)->ClearDominateMe();
+		}
+
+		// 分群組
+		BoundingBox mbr = GetMBR(uObject);
+
+		int minAR[DIMENSION], maxAR[DIMENSION];
+		for (int i = 0; i< DIMENSION; i++)
+		{
+			minAR[i] = 0;
+			maxAR[i] = mbr.edges[i].second;
+		}
+
+		BoundingBox searchAR = Bounds(minAR, maxAR);
+
+		Visitor x;
+		x = _candidateTree.Query(RTree::AcceptOverlapping(searchAR), Visitor());
+
+		if (tempMap.find(uObject->GetName()) == tempMap.end()) {
+			// not found
+			tempMap.insert(pair<string, string>(uObject->GetName(), uObject->GetName()));
+			groups.insert(pair<string, vector<UncertainObject*>>(uObject->GetName(), vector<UncertainObject*>()));
+			groups.at(uObject->GetName()).push_back(uObject);
+		}
+		else {
+
+		}
+
+		for (vector<UncertainObject*>::iterator it1 = x.uObjects.begin(); it1 < x.uObjects.end(); it1++)
+		{
+			UncertainObject* uObject1 = *it1;
+			if (tempMap.find(uObject1->GetName()) == tempMap.end()) {
+				// not found 無群組 加到我的群組
+				tempMap.insert(pair<string, string>(uObject1->GetName(), tempMap.at(uObject->GetName())));
+				groups.at(tempMap.at(uObject->GetName())).push_back(uObject1);
+			}
+			else {
+				// 有群組 合併群組
+				string groupName = tempMap.at(uObject1->GetName());
+				string groupName2 = tempMap.at(uObject->GetName());
+				if (groupName != groupName2)
+				{
+					// 合併group
+					for (vector<UncertainObject*>::iterator it2 = groups.at(groupName).begin(); it2 < groups.at(groupName).end(); it2++)
+					{
+						tempMap.at((*it2)->GetName()) = groupName2;
+						groups.at(groupName2).push_back(*it2);
+					}
+					groups.at(groupName).clear();
+					groups.erase(groupName);
+				}
+			}
+
+		}
+
+	}
+	//cout << "group : " << groups.size() << endl;
+	//groups.push_back(_skyline);
+
+
+	for (map<string, vector<UncertainObject*>>::iterator gIt = groups.begin(); gIt != groups.end(); gIt++)
+	{
+		_updateCount = groups.size();
+		vector<UncertainObject*> tempSkyline = gIt->second;
+		vector<UncertainObject*> tempSkyline2;
+		tempSkyline2.insert(tempSkyline2.begin(), tempSkyline.begin(), tempSkyline.end());
+		//tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());
+		for (vector<UncertainObject*>::iterator it = tempSkyline.begin(); it < tempSkyline.end(); it++)
+		{
+			UncertainObject* uObject = *it;
+			uObject->NeedReCompute();
 			for (vector<UncertainObject*>::iterator it2 = tempSkyline2.begin(); it2 < tempSkyline2.end(); it2++)
 			{
 				UncertainObject* uObject2 = *it2;
@@ -286,72 +511,6 @@ void CandidateListRtree::Group()
 					//}
 					//if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
 					//{
-						vector<Instance*> instances = uObject->GetInstances();
-						for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-						{
-							vector<Instance*> instances2 = uObject2->GetInstances();
-							Instance* instance = *instamceIt;
-							for (vector<Instance*>::iterator instamceIt2 = instances2.begin(); instamceIt2 < instances2.end(); instamceIt2++)
-							{
-								if (Function::DominateTest(*instamceIt2, instance, _dimensions))
-								{
-									instance->AddDominateMeInstance(*instamceIt2);
-								}
-							}
-						}
-					/*}
-					delete fake1;
-					delete fake2;*/
-				}
-			}
-		}
-	}
-}
-
-void CandidateListRtree::Normal()
-{
-	//cout << "Tree Size: " << _candidateTree.GetSize() << endl;
-	_skyline.clear();
-	Visitor x;
-	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
-	_skyline = x.uObjects;
-	_updateCount = x.count;
-
-	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
-	{
-		// 清空我被誰Dominate的陣列
-		UncertainObject* uObject = *it;
-		vector<Instance*> instances = uObject->GetInstances();
-		for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
-		{
-			(*instamceIt)->ClearDominateMe();
-		}
-	}
-
-	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
-	{
-		UncertainObject* uObject = *it;
-		//for (vector<UncertainObject*>::iterator it2 = _slideWindow.begin(); it2 < _slideWindow.end(); it2++)
-		for (vector<UncertainObject*>::iterator it2 = _skyline.begin(); it2 < _skyline.end(); it2++)
-		{
-			UncertainObject* uObject2 = *it2;
-			if (uObject != uObject2)
-			{
-				//BoundingBox mbr = GetMBR(uObject);
-				//Instance* fake1 = new Instance;
-				//for (int i = 0; i< DIMENSION; i++)
-				//{
-				//	fake1->AddDimensionValue(mbr.edges[i].second);
-				//}
-
-				//BoundingBox mbr2 = GetMBR(uObject2);
-				//Instance* fake2 = new Instance;
-				//for (int i = 0; i< DIMENSION; i++)
-				//{
-				//	fake2->AddDimensionValue(mbr2.edges[i].first);
-				//}
-				//if (Function::DominateTest(fake2, fake1, _dimensions)) // 2 dominate 1
-				//{
 					vector<Instance*> instances = uObject->GetInstances();
 					for (vector<Instance*>::iterator instamceIt = instances.begin(); instamceIt < instances.end(); instamceIt++)
 					{
@@ -365,12 +524,19 @@ void CandidateListRtree::Normal()
 							}
 						}
 					}
-				/*}
-				delete fake1;
-				delete fake2;*/
+					/*}
+					delete fake1;
+					delete fake2;*/
+				}
+			}
+			
+			double pr = uObject->GetSkylineProbability();
+			if (Function::isBiggerEqual(pr, _threshold, OFFSET))
+			{
+				_skyline.push_back(uObject);
 			}
 		}
-	}	
+	}
 }
 
 string CandidateListRtree::GetSkylineResult()
@@ -493,11 +659,8 @@ vector<UncertainObject*> CandidateListRtree::PruningMethod(vector<UncertainObjec
 
 int CandidateListRtree::GetSkylineCount()
 {
-	Visitor x;
-	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
-	vector<UncertainObject*> temp = x.uObjects;
 	int result = 0;
-	for (vector<UncertainObject*>::iterator it = temp.begin(); it < temp.end(); it++)
+	for (vector<UncertainObject*>::iterator it = _skyline.begin(); it < _skyline.end(); it++)
 	{
 		double pr = (*it)->GetSkylineProbability();
 		if (Function::isBiggerEqual(pr, _threshold, OFFSET))

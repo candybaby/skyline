@@ -64,6 +64,7 @@ private:
 	BoundingBox GetMBR(UncertainObject *);
 	vector<UncertainObject*> PruningMethod(vector<UncertainObject*>, vector<int>, vector<int>);
 
+	vector<UncertainObject*> _skyline;
 	//RTree _slideWindowTree;
 	RTree _maybeTree;
 	int _updateCount;

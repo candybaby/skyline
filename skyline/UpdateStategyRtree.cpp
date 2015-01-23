@@ -85,6 +85,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 				}
 			}
 		}
+		uObjectTest->NeedReCompute();
 	}
 	// fix end
 	////////////////////////////////////////////////////////////////////////////////////
@@ -103,9 +104,10 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	{
 		//_updateList.push_back(uObject);
 		// fix
-		_updateCount++;
+		//_updateCount++;
 		for (vector<UncertainObject*>::iterator it2 = y.uObjects.begin(); it2 < y.uObjects.end(); it2++)
 		{
+			_updateCount++;
 			vector<Instance*> instances = uObject->GetInstances();
 			UncertainObject* uObject2 = *it2;
 			//if (Function::FullDominateTest(uObject2, uObject, _dimensions)) // 2 dominate 1
@@ -211,6 +213,7 @@ void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 				instance->RemoveDominateMeInstance(*instamceIt2);
 			}
 		}
+		uObjectTest->NeedReCompute();
 	}
 	// fix end
 	///////////////////////////////////////////////////////////////////////////////////////

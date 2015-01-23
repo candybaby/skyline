@@ -31,6 +31,8 @@ public:
 	void SetMin(int*);
 	int* GetMin();
 
+	void NeedReCompute();
+
 private:
 	string name;
 	int timestamp;
@@ -38,5 +40,6 @@ private:
 	bool _isPruned;
 	int* _max;
 	int* _min;
+	double _cache;
 };
 #endif

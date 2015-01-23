@@ -4,6 +4,7 @@
 UncertainObject::UncertainObject(void)
 {
 	_isPruned = false;
+	_cache = 0;
 }
 
 
@@ -50,11 +51,20 @@ vector<Instance*> UncertainObject::GetInstances()
 double UncertainObject::GetSkylineProbability()
 {
 	double result = 0;
-	for (vector<Instance*>::iterator it = instances.begin(); it < instances.end(); it++)
+	if (_cache == 0)
 	{
-		Instance* instance = *it;
-		result += instance->GetSkylineProbability() * instance->GetProbability(); 
+		for (vector<Instance*>::iterator it = instances.begin(); it < instances.end(); it++)
+		{
+			Instance* instance = *it;
+			result += instance->GetSkylineProbability() * instance->GetProbability();
+		}
+		_cache = result;
 	}
+	else
+	{
+		result = _cache;
+	}
+	
 	return result;
 }
 
@@ -85,4 +95,9 @@ void UncertainObject::SetMin(int* min)
 int* UncertainObject::GetMin()
 {
 	return _min;
+}
+
+void UncertainObject::NeedReCompute()
+{
+	_cache = 0;
 }
