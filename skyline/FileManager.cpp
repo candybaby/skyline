@@ -50,6 +50,26 @@ string FileManager::readFile()
 	return result;
 }
 
+vector<string> FileManager::readFileToVector()
+{
+	vector<string> result_v;
+	string result, line;
+	int counter = 0;
+	while (getline(fin, line))
+	{
+		counter++;
+		result += line + "\n";
+
+		if (counter > 200)
+		{
+			counter = 0;
+			result_v.push_back(result);
+			result = "";
+		}
+	}
+	return result_v;
+}
+
 // ¼gÀÉ®×
 void FileManager::writeLine(string content)
 {

@@ -4,6 +4,7 @@
 #include <iostream> 
 #include <fstream> 
 #include <string>
+#include <vector>
 
 using namespace std;
 class FileManager
@@ -20,6 +21,7 @@ public:
 	void writeLine(string);
 	void write(string);
 	string readFile();
+	vector<string> readFileToVector();
 	void closeFile();
 	
 private:

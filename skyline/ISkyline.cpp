@@ -50,6 +50,7 @@ void ISkyline::Delete(UncertainObject* uObject)
 	{
 		_slideWindow.erase(find(_slideWindow.begin(), _slideWindow.end(), uObject));
 		DeleteObject(uObject);
+		delete uObject;
 	}
 }
 

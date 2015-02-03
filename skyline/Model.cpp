@@ -10,12 +10,12 @@ Model::~Model(void)
 {
 	objectsHashByName.clear();
 	objectsHash.clear();
-	while (objects.size() > 0)
-	{
-		UncertainObject* delData = objects.back();
-		objects.pop_back();
-		delete delData;
-	}
+	//while (objects.size() > 0)
+	//{
+	//	UncertainObject* delData = objects.back();
+	//	objects.pop_back();
+	//	delete delData;
+	//}
 }
 
 void Model::LoadData(string dataSet)
@@ -23,13 +23,21 @@ void Model::LoadData(string dataSet)
 	string fileName = dataSet;
 	FileManager* file = new FileManager;
 	file->openFile(fileName, FileManager::Read);
-	string content = file->readFile();
+	vector<string> contents = file->readFileToVector();
+	//string content = file->readFile();
 	file->closeFile();
-
+	// fix start
+	int count = 0;
+	for (vector<string>::iterator it = contents.begin(); it < contents.end(); it++)
+	{
+		string content = *it;
+		count++;
+	// fix end
 	string tempName = "";
 	UncertainObject* object = NULL;
 	vector<string> lines = Function::split(content, CHAR_ENDL);
-	lines.erase(lines.begin());
+	if (count == 1) // fix
+		lines.erase(lines.begin());
 	for (vector<string>::iterator it = lines.begin(); it < lines.end(); it++)
 	{
 		vector<string> temp = Function::split(*it, '\t');
@@ -74,7 +82,9 @@ void Model::LoadData(string dataSet)
 		object->AddInstance(instance);
 	}
 	objects.push_back(object);
-
+	// fix start
+	}
+	// fix end
 	for (vector<UncertainObject*>::iterator it = objects.begin(); it < objects.end(); it++)
 	{
 		int timestamp = (*it)->GetTimestamp();

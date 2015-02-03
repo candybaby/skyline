@@ -8,6 +8,7 @@ Instance::Instance(void)
 
 Instance::~Instance(void)
 {
+	ClearDominateMe();
 }
 
 void Instance::SetName(string value)
