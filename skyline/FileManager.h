@@ -21,6 +21,8 @@ public:
 	void writeLine(string);
 	void write(string);
 	string readFile();
+	string readLine();
+	string readLastLine();
 	vector<string> readFileToVector();
 	void closeFile();
 	

@@ -17,6 +17,7 @@ class Model
 {
 public:
 	Model(void);
+	Model(string);
 	~Model(void);
 	void LoadData(string);
 	UncertainObject* GetObjectByTimestamp(int );
@@ -24,10 +25,17 @@ public:
 	int GetSize();
 	vector<int> GetMaxDimension();
 
+	void LoadNextData();
+	void InitSize(string);
+
 private:
 	vector<UncertainObject *> objects;
 	map<int, UncertainObject *> objectsHash;
 	map<string, UncertainObject *> objectsHashByName;
 	vector<int> _maxDimensions;
+	FileManager* _streamFile;
+	string _tempContent;
+	int _timestamp;
+	int _size;
 };
 #endif

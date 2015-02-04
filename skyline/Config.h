@@ -2,7 +2,7 @@
 #ifndef _CONFIG_ 
 #define _CONFIG_
 
-#define DIMENSION 2
+#define DIMENSION 9
 //#define DATASET "1000-8-2.tsv"
 //#define DATASET "1000-8.tsv"
 //#define DATASET "data.tsv"

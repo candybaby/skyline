@@ -263,7 +263,7 @@ void CandidateListRtree::Group()
 		vector<UncertainObject*> tempSkyline = gIt->second;
 		vector<UncertainObject*> tempSkyline2;
 		tempSkyline2.insert(tempSkyline2.begin(),tempSkyline.begin(),tempSkyline.end());
-		//tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());   // ­×¥¿ª©
+		tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());   // ­×¥¿ª©
 		for (vector<UncertainObject*>::iterator it = tempSkyline.begin(); it < tempSkyline.end(); it++)
 		{
 			UncertainObject* uObject = *it;
@@ -486,7 +486,7 @@ void CandidateListRtree::Normal()
 		vector<UncertainObject*> tempSkyline = gIt->second;
 		vector<UncertainObject*> tempSkyline2;
 		tempSkyline2.insert(tempSkyline2.begin(), tempSkyline.begin(), tempSkyline.end());
-		//tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());  // ­×¥¿ª©
+		tempSkyline2.insert(tempSkyline2.begin(),_prunedObject.begin(),_prunedObject.end());  // ­×¥¿ª©
 		for (vector<UncertainObject*>::iterator it = tempSkyline.begin(); it < tempSkyline.end(); it++)
 		{
 			UncertainObject* uObject = *it;

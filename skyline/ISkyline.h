@@ -12,6 +12,7 @@ public:
 	ISkyline(void);
 	ISkyline(Model*);
 	virtual ~ISkyline(void);
+	virtual void Run();
 	virtual void NextTimestamp();
 	virtual void Insert(UncertainObject *);
 	virtual void Delete(UncertainObject *);

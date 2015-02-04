@@ -26,13 +26,22 @@ ISkyline::~ISkyline(void)
 	_slideWindow.clear();
 }
 
-void ISkyline::NextTimestamp()
+void ISkyline::Run()
 {
-	_currentTimestamp++;
 	Delete(_model->GetObjectByTimestamp(_currentTimestamp - _slideWindowSize));
 	Insert(_model->GetObjectByTimestamp(_currentTimestamp));
 	ComputeSkyline();
+}
 
+void ISkyline::NextTimestamp()
+{
+	_currentTimestamp++;
+	_model->LoadNextData();
+	_maxDimensions = _model->GetMaxDimension();
+	//Delete(_model->GetObjectByTimestamp(_currentTimestamp - _slideWindowSize));
+	//Insert(_model->GetObjectByTimestamp(_currentTimestamp));
+	//ComputeSkyline();
+	//Run();
 }
 
 void ISkyline::Insert(UncertainObject* uObject)

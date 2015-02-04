@@ -22,16 +22,19 @@ double numberOfTimestamp;
 double RunUSR(string dataSet, double threshold, int windowSize)
 {
 	clock_t begin = clock();
-	Model* model = new Model;
-	model->LoadData(dataSet);
+	//Model* model = new Model;
+	//model->LoadData(dataSet);
 	clock_t end = clock();
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
+
+	Model* model = new Model(dataSet);
 
 	int dataCount = model->GetSize();
 	double testTimestamp = dataCount + windowSize;
 	numberOfTimestamp = testTimestamp;
 
-	begin = clock();
+	//begin = clock();
+	double runTime = 0.0;
 	UpdateStategyRtree* usr = new UpdateStategyRtree(model);
 	usr->SetThreshold(threshold);
 	usr->SetWindowSize(windowSize);
@@ -41,33 +44,41 @@ double RunUSR(string dataSet, double threshold, int windowSize)
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		usr->NextTimestamp();
+		begin = clock();
+		usr->Run();
 		numberOfSkyline += usr->GetSkylineCount();
 		numberOfUpdateCount += usr->GetUpdateCount();
 		numberOfPrunedCount += usr->GetPrunedCount();
+		end = clock();
+		runTime += (end - begin);
 		/*int cT = usr->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << usr->GetSkylineResult() << endl;*/
 		//system("pause");
 	}
-	end = clock();
+	//end = clock();
 	delete usr;
 	delete model;
 	//cout << "USR Time elapsed: " << Function::diffclock(end, begin) << " ms"<< endl;
-	return (end - begin) / testTimestamp;
+	return runTime / testTimestamp;
 }
 
 double RunCLRG(string dataSet, double threshold, int windowSize)
 {
 	clock_t begin = clock();
-	Model* model = new Model;
-	model->LoadData(dataSet);
+	//Model* model = new Model;
+	//model->LoadData(dataSet);
 	clock_t end = clock();
+
+	Model* model = new Model(dataSet);
+
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
 	double testTimestamp = dataCount + windowSize;
 	numberOfTimestamp = testTimestamp;
-	begin = clock();
-
+	
+	//begin = clock();
+	double runTime = 0.0;
 	CandidateListRtree* CLRG = new CandidateListRtree(model, true);
 	CLRG->SetThreshold(threshold);
 	CLRG->SetWindowSize(windowSize);
@@ -77,34 +88,42 @@ double RunCLRG(string dataSet, double threshold, int windowSize)
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLRG->NextTimestamp();
+		begin = clock();
+		CLRG->Run();
 		numberOfSkyline += CLRG->GetSkylineCount();
 		numberOfUpdateCount += CLRG->GetUpdateCount();
 		numberOfPrunedCount += CLRG->GetPrunedCount();
+		end = clock();
+		runTime += (end - begin);
 		/*int cT = CLRG->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLRG->GetSkylineResult() << endl;*/
 		//system("pause");
 	}
-	end = clock();
+	//end = clock();
 	delete CLRG;
 	delete model;
 	//cout << "CL group Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
-	return (end - begin) / testTimestamp;
+	return runTime / testTimestamp;
 }
 
 double RunCLR(string dataSet, double threshold, int windowSize)
 {
 	clock_t begin = clock();
-	Model* model = new Model;
-	model->LoadData(dataSet);
+	//Model* model = new Model;
+	//model->LoadData(dataSet);
 	clock_t end = clock();
+
+	Model* model = new Model(dataSet);
+
 	//cout << "Load Data Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
 	int dataCount = model->GetSize();
 	double testTimestamp = dataCount + windowSize;
 	numberOfTimestamp = testTimestamp;
 
 
-	begin = clock();
+	//begin = clock();
+	double runTime = 0.0;
 	CandidateListRtree* CLR = new CandidateListRtree(model, false);
 	CLR->SetThreshold(threshold);
 	CLR->SetWindowSize(windowSize);
@@ -114,9 +133,13 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	for (int i = 0; i<testTimestamp;i++)
 	{
 		CLR->NextTimestamp();
+		begin = clock();
+		CLR->Run();
 		numberOfSkyline += CLR->GetSkylineCount();
 		numberOfUpdateCount += CLR->GetUpdateCount();
 		numberOfPrunedCount += CLR->GetPrunedCount();
+		end = clock();
+		runTime += (end - begin);
 		/*int cT = CLR->GetTimestamp();
 		resultFile << "Timestamp: " << cT << endl;
 		resultFile << CLR->GetSkylineResult() << endl;*/
@@ -125,7 +148,7 @@ double RunCLR(string dataSet, double threshold, int windowSize)
 	delete CLR;
 	delete model;
 	//cout << "CL normal Time elapsed: " << Function::diffclock(end,begin) << " ms"<< endl;
-	return (end - begin) / testTimestamp;
+	return runTime / testTimestamp;
 }
 
 double RunBF(string dataSet, double threshold, int windowSize)
@@ -195,6 +218,10 @@ double RunGBUS(string dataSet, double threshold, int windowSize)
 using namespace std;
 int main(int argc, char *argv[])
 {
+	//Model* model = new Model("test.tsv");
+	//model->LoadNextData();
+	//model->LoadNextData();
+	//int aaa = model->GetSize();
 	string dataSet = "";
 	int windowSize = 20;
 	int testCount = 1;
