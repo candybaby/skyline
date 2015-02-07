@@ -14,16 +14,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
- 
-/*
- *	This is intended to be a templated implementation of an R* Tree, designed
- *	to create an efficient and (relatively) small indexing container in N 
- *	dimensions. At the moment, it is a memory-based container instead of disk
- *  based.
- *
- *	Based on "The R*-Tree: An Efficient and Robust Access Method for Points 
- *	and Rectangles" by N. Beckmann, H.P. Kriegel, R. Schneider, and B. Seeger
- */
 
 
 #ifndef RTREE_H
