@@ -18,7 +18,7 @@ CandidateListRtree::~CandidateListRtree(void)
 {
 	_candidateList.clear();
 	_skyline.clear();
-	_candidateTree.~RStarTree();
+	_candidateTree.~RTree();
 }
 
 void CandidateListRtree::InsertObject(UncertainObject* uObject)
@@ -44,7 +44,7 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 
 	BoundingBox searchDDR = Bounds(minDDR, maxDDR);
 	Visitor x;
-	x = _candidateTree.Query(RTree::AcceptOverlapping(searchDDR), Visitor());
+	x = _candidateTree.Query(RTree_T::AcceptOverlapping(searchDDR), Visitor());
 	// 物件MBR 處於新進物件的DDR(有Overlap)
 	vector<int> maxDim, minDim;
 	for (int i=0;i<DIMENSION;i++)
@@ -77,7 +77,7 @@ void CandidateListRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchPAR = Bounds(minPAR, maxPAR);
-	x = _candidateTree.Query(RTree::AcceptEnclosing(searchPAR), Visitor());
+	x = _candidateTree.Query(RTree_T::AcceptEnclosing(searchPAR), Visitor());
 	//cout << x.count << endl;
 	if (x.uObjects.size() == 0)
 	{
@@ -148,7 +148,7 @@ void CandidateListRtree::DeleteObject(UncertainObject* uObject)
 			}
 			BoundingBox searchDAR = Bounds(minDAR, maxDAR);
 			Visitor x;
-			x = _candidateTree.Query(RTree::AcceptEnclosing(searchDAR), Visitor());
+			x = _candidateTree.Query(RTree_T::AcceptEnclosing(searchDAR), Visitor());
 			vector<UncertainObject*> dominateCandidateList = x.uObjects;
 			if (dominateCandidateList.size() == 0)
 			{
@@ -178,7 +178,7 @@ void CandidateListRtree::Group()
 	//cout << "Tree Size: " << _candidateTree.GetSize() << endl;
 	_skyline.clear();
 	Visitor x;
-	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
+	x = _candidateTree.Query(RTree_T::AcceptAny(), Visitor());
 	//vector<UncertainObject*> candList = x.uObjects;
 	_updateCount = x.count;
 	//ofstream resultFile;
@@ -215,7 +215,7 @@ void CandidateListRtree::Group()
 		BoundingBox searchAR = Bounds(minAR, maxAR);
 
 		Visitor x;
-		x = _candidateTree.Query(RTree::AcceptOverlapping(searchAR), Visitor());
+		x = _candidateTree.Query(RTree_T::AcceptOverlapping(searchAR), Visitor());
 
 		if (tempMap.find(uObject->GetName()) == tempMap.end()) {
 			// not found
@@ -399,7 +399,7 @@ void CandidateListRtree::Normal()
 	//cout << "Tree Size: " << _candidateTree.GetSize() << endl;
 	_skyline.clear();
 	Visitor x;
-	x = _candidateTree.Query(RTree::AcceptAny(), Visitor());
+	x = _candidateTree.Query(RTree_T::AcceptAny(), Visitor());
 	//_skyline = x.uObjects;
 	////_updateCount = x.count;
 	//ofstream resultFile;
@@ -436,7 +436,7 @@ void CandidateListRtree::Normal()
 		BoundingBox searchAR = Bounds(minAR, maxAR);
 
 		Visitor x;
-		x = _candidateTree.Query(RTree::AcceptOverlapping(searchAR), Visitor());
+		x = _candidateTree.Query(RTree_T::AcceptOverlapping(searchAR), Visitor());
 
 		if (tempMap.find(uObject->GetName()) == tempMap.end()) {
 			// not found

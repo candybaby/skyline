@@ -4,10 +4,10 @@
 #include <map>
 #include <time.h>
 #include "ISkyline.h"
-#include "RStarTree.h"
+#include "RTree.h"
 
-typedef RStarTree<UncertainObject *, DIMENSION, 3, 8> RTree;
-typedef RTree::BoundingBox BoundingBox;
+typedef RTree<UncertainObject *, DIMENSION, 3, 8> RTree_T;
+typedef RTree_T::BoundingBox BoundingBox;
 
 struct UVisitor {
 	int count;
@@ -16,7 +16,7 @@ struct UVisitor {
 
 	UVisitor() : count(0), ContinueVisiting(true) {};
 
-	void operator()(const RTree::Leaf * const leaf) 
+	void operator()(const RTree_T::Leaf * const leaf)
 	{
 		uObjects.push_back(leaf->leaf);
 		count++;
@@ -30,7 +30,7 @@ struct UVisitorWithoutPruned {
 
 	UVisitorWithoutPruned() : count(0), ContinueVisiting(true) {};
 
-	void operator()(const RTree::Leaf * const leaf) 
+	void operator()(const RTree_T::Leaf * const leaf)
 	{
 		if (!leaf->leaf->GetPruned())
 		{
@@ -66,7 +66,7 @@ private:
 
 	vector<UncertainObject*> _skyline;
 	//RTree _slideWindowTree;
-	RTree _maybeTree;
+	RTree_T _maybeTree;
 	int _updateCount;
 	int _prunedCount;
 };

@@ -26,8 +26,8 @@
  */
 
 
-#ifndef RSTARTREE_H
-#define RSTARTREE_H
+#ifndef RTREE_H
+#define RTREE_H
 
 #include <list>
 #include <vector>
@@ -40,19 +40,19 @@
 #include <sstream>
 #include <fstream>
 
-#include "RStarBoundingBox.h"
+#include "RBoundingBox.h"
 
 // R* tree parameters
 #define RTREE_REINSERT_P 0.30
 #define RTREE_CHOOSE_SUBTREE_P 32
 
 // template definition:
-#define RSTAR_TEMPLATE 
+#define R_TEMPLATE 
 
 
 // definition of an leaf
 template <typename BoundedItem, typename LeafType>
-struct RStarLeaf : BoundedItem {
+struct RLeaf : BoundedItem {
 	
 	typedef LeafType leaf_type;
 	LeafType leaf;
@@ -60,17 +60,17 @@ struct RStarLeaf : BoundedItem {
 
 // definition of a node
 template <typename BoundedItem>
-struct RStarNode : BoundedItem {
+struct RNode : BoundedItem {
 	std::vector< BoundedItem* > items;
 	bool hasLeaves;
 };
 
-#include "RStarVisitor.h"
+#include "RVisitor.h"
 
 
 /**
-	\class RStarTree
-	\brief Implementation of an RTree with an R* index
+	\class RTree
+	\brief Implementation of an RTree with an R index
 	
 	@tparam LeafType		type of leaves stored in the tree
 	@tparam dimensions  	number of dimensions the bounding boxes are described in
@@ -82,34 +82,34 @@ template <
 	typename LeafType, 
 	std::size_t dimensions, std::size_t min_child_items, std::size_t max_child_items
 >
-class RStarTree {
+class RTree {
 public:
 
 	// shortcuts
-	typedef RStarBoundedItem<dimensions>		BoundedItem;
+	typedef RBoundedItem<dimensions>		BoundedItem;
 	typedef typename BoundedItem::BoundingBox	BoundingBox;
 	
-	typedef RStarNode<BoundedItem> 				Node;
-	typedef RStarLeaf<BoundedItem, LeafType> 	Leaf;
+	typedef RNode<BoundedItem> 				Node;
+	typedef RLeaf<BoundedItem, LeafType> 	Leaf;
 	
 	// acceptors
-	typedef RStarAcceptOverlapping<Node, Leaf>	AcceptOverlapping;
-	typedef RStarAcceptEnclosing<Node, Leaf>	AcceptEnclosing;
-	typedef RStarAcceptAny<Node, Leaf>			AcceptAny;
+	typedef RAcceptOverlapping<Node, Leaf>	AcceptOverlapping;
+	typedef RAcceptEnclosing<Node, Leaf>	AcceptEnclosing;
+	typedef RAcceptAny<Node, Leaf>			AcceptAny;
 
 	// predefined visitors
-	typedef RStarRemoveLeaf<Leaf>				RemoveLeaf;
-	typedef RStarRemoveSpecificLeaf<Leaf>		RemoveSpecificLeaf;
+	typedef RRemoveLeaf<Leaf>				RemoveLeaf;
+	typedef RRemoveSpecificLeaf<Leaf>		RemoveSpecificLeaf;
 	
 
 	// default constructor
-	RStarTree() : m_root(NULL), m_size(0) 
+	RTree() : m_root(NULL), m_size(0) 
 	{
 		assert(1 <= min_child_items && min_child_items <= max_child_items/2);
 	}
 	
 	// destructor
-	~RStarTree() { 
+	~RTree() { 
 		Remove(
 			AcceptAny(), 
 			RemoveLeaf()
@@ -195,7 +195,7 @@ public:
 		You must specify an	acceptor functor that takes a BoundingBox and a 
 		visitor that takes a BoundingBox and a const LeafType&.
 		
-		See RStarVisitor.h for more information about the various visitor
+		See RVisitor.h for more information about the various visitor
 		types available.
 		
 		@param acceptor 		An acceptor functor that returns true if this 
@@ -224,7 +224,7 @@ public:
 	/**
 		\brief Removes item(s) from the tree. 
 		
-		See RStarVisitor.h for more information about the various visitor
+		See RVisitor.h for more information about the various visitor
 		types available.
 		
 		@param acceptor 	A node acceptor functor that returns true if this 
@@ -758,7 +758,7 @@ private:
 	std::size_t m_size;
 };
 
-#undef RSTAR_TEMPLATE
+#undef R_TEMPLATE
 
 #undef RTREE_SPLIT_M
 #undef RTREE_REINSERT_P

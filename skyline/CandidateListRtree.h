@@ -3,11 +3,11 @@
 #define _CANDIDATE_LIST_RTREE_
 #include <map>
 #include "ISkyline.h"
-#include "RStarTree.h"
+#include "RTree.h"
 #include <time.h>
 
-typedef RStarTree<UncertainObject *, DIMENSION, 3, 8> RTree;
-typedef RTree::BoundingBox BoundingBox;
+typedef RTree<UncertainObject *, DIMENSION, 3, 8> RTree_T;
+typedef RTree_T::BoundingBox BoundingBox;
 
 struct Visitor {
 	int count;
@@ -16,7 +16,7 @@ struct Visitor {
 
 	Visitor() : count(0), ContinueVisiting(true) {};
 
-	void operator()(const RTree::Leaf * const leaf) 
+	void operator()(const RTree_T::Leaf * const leaf)
 	{
 		uObjects.push_back(leaf->leaf);
 		count++;
@@ -52,7 +52,7 @@ private:
 	map<int, vector<UncertainObject*>> _candidateList;
 	vector<UncertainObject*> _skyline;
 	vector<UncertainObject*> _prunedObject;
-	RTree _candidateTree;
+	RTree_T _candidateTree;
 	int _updateCount;
 	int _prunedCount;
 };

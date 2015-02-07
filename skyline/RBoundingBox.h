@@ -16,8 +16,8 @@
  */
 
 
-#ifndef RStarBoundingBox_H
-#define RStarBoundingBox_H
+#ifndef RBoundingBox_H
+#define RBoundingBox_H
 
 #include <limits>
 #include <utility>
@@ -27,7 +27,7 @@
 
 
 template <std::size_t dimensions>
-struct RStarBoundingBox {
+struct RBoundingBox {
 
 	// edges[x].first is low value, edges[x].second is high value
 	std::pair<int, int> edges[dimensions];
@@ -43,16 +43,16 @@ struct RStarBoundingBox {
 	}
 	
 	// returns a new bounding box that has the maximum boundaries
-	static RStarBoundingBox MaximumBounds()
+	static RBoundingBox MaximumBounds()
 	{
-		RStarBoundingBox<dimensions> bound;
+		RBoundingBox<dimensions> bound;
 		bound.reset();
 		return bound;
 	}
 	
 
 	// fits another box inside of this box, returns true if a stretch occured
-	bool stretch(const RStarBoundingBox<dimensions> &bb)
+	bool stretch(const RBoundingBox<dimensions> &bb)
 	{
 		bool ret = false;
 		
@@ -96,7 +96,7 @@ struct RStarBoundingBox {
 	}
 	
 	// this determines if a bounding box is fully contained within this bounding box
-	inline bool encloses(const RStarBoundingBox<dimensions>& bb) const
+	inline bool encloses(const RBoundingBox<dimensions>& bb) const
 	{
 		// if (y1 < x1 || x2 < y2)
 		for (std::size_t axis = 0; axis < dimensions; axis++)
@@ -107,7 +107,7 @@ struct RStarBoundingBox {
 	}
 	
 	// a quicker way to determine if two bounding boxes overlap
-	inline bool overlaps(const RStarBoundingBox<dimensions>& bb) const
+	inline bool overlaps(const RBoundingBox<dimensions>& bb) const
 	{
 		// do it this way so theres no equal signs (in case of doubles)
 		// if (!(x1 < y2) && !(x2 > y1))
@@ -121,7 +121,7 @@ struct RStarBoundingBox {
 	}
 	
 	// calculates the total overlapping area of two boxes
-	double overlap(const RStarBoundingBox<dimensions>& bb) const
+	double overlap(const RBoundingBox<dimensions>& bb) const
 	{
 		double area = 1.0;
 		for (std::size_t axis = 0; area && axis < dimensions; axis++)
@@ -167,7 +167,7 @@ struct RStarBoundingBox {
 	}
 	
 	// sums the total distances from the center of another bounding box
-	double distanceFromCenter(const RStarBoundingBox<dimensions>& bb) const
+	double distanceFromCenter(const RBoundingBox<dimensions>& bb) const
 	{
 		double distance = 0, t;
 		for (std::size_t axis = 0; axis < dimensions; axis++)
@@ -182,7 +182,7 @@ struct RStarBoundingBox {
 	}
 	
 	// determines if two bounding boxes are identical
-	bool operator==(const RStarBoundingBox<dimensions>& bb)
+	bool operator==(const RBoundingBox<dimensions>& bb)
 	{
 		for (std::size_t axis = 0; axis < dimensions; axis++)
 			if (edges[axis].first != bb.edges[axis].first || edges[axis].second != bb.edges[axis].second)
@@ -212,8 +212,8 @@ struct RStarBoundingBox {
 
 
 template <std::size_t dimensions>
-struct RStarBoundedItem {
-	typedef RStarBoundingBox<dimensions> BoundingBox;
+struct RBoundedItem {
+	typedef RBoundingBox<dimensions> BoundingBox;
 
 	BoundingBox bound;
 };

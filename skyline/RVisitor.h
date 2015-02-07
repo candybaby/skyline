@@ -15,10 +15,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
  
- #ifndef RSTARVISITOR_H
- #define RSTARVISITOR_H
+ #ifndef RVISITOR_H
+ #define RVISITOR_H
  
- #include "RStarBoundingBox.h"
+ #include "RBoundingBox.h"
  
  /**
 	\file
@@ -27,7 +27,7 @@
 	this, but it works so I'll stick with it for the moment
 	
 	It should be noted that all of these items are typedef'ed inside 
-	of the RStarTree class, so you shouldn't generally need to
+	of the RTree class, so you shouldn't generally need to
 	directly use them. 
  */
  
@@ -52,10 +52,10 @@
 
 // returns true if the node overlaps the specified bound
 template <typename Node, typename Leaf>
-struct RStarAcceptOverlapping
+struct RAcceptOverlapping
 {
 	const typename Node::BoundingBox &m_bound;
-	explicit RStarAcceptOverlapping(const typename Node::BoundingBox &bound) : m_bound(bound) {}
+	explicit RAcceptOverlapping(const typename Node::BoundingBox &bound) : m_bound(bound) {}
 	
 	bool operator()(const Node * const node) const 
 	{ 
@@ -67,16 +67,16 @@ struct RStarAcceptOverlapping
 		return m_bound.overlaps(leaf->bound); 
 	}
 	
-	private: RStarAcceptOverlapping(){}
+	private: RAcceptOverlapping(){}
 };
 
 
 // returns true if the compared boundary is within the specified bound
 template <typename Node, typename Leaf>
-struct RStarAcceptEnclosing
+struct RAcceptEnclosing
 {
 	const typename Node::BoundingBox &m_bound;
-	explicit RStarAcceptEnclosing(const typename Node::BoundingBox &bound) : m_bound(bound) {}
+	explicit RAcceptEnclosing(const typename Node::BoundingBox &bound) : m_bound(bound) {}
 	
 	bool operator()(const Node * const node) const 
 	{ 
@@ -88,13 +88,13 @@ struct RStarAcceptEnclosing
 		return m_bound.encloses(leaf->bound); 
 	}
 	
-	private: RStarAcceptEnclosing(){}
+	private: RAcceptEnclosing(){}
 };
 
 
 // will always return true, no matter what
 template <typename Node, typename Leaf>
-struct RStarAcceptAny
+struct RAcceptAny
 {
 	bool operator()(const Node * const node) const { return true; }
 	bool operator()(const Leaf * const leaf) const { return true; }
@@ -106,7 +106,7 @@ struct RStarAcceptAny
  * specifically targeted for removal tasks, visitor classes are 
  * specified exactly the same way. 
  *
- * bool operator()(RStarLeaf<LeafType, dimensions> * leaf)
+ * bool operator()(RLeaf<LeafType, dimensions> * leaf)
  * 		-- Removal: if returns true, then remove the node
  *		-- Visitor: return can actually be void, not used
  *
@@ -127,10 +127,10 @@ struct RStarAcceptAny
 	a different functor to use, as long as it has the same signature as this. 
 */
 template <typename Leaf>
-struct RStarRemoveLeaf{
+struct RRemoveLeaf{
 
 	const bool ContinueVisiting;
-	RStarRemoveLeaf() : ContinueVisiting(true) {}
+	RRemoveLeaf() : ContinueVisiting(true) {}
 
 	bool operator()(const Leaf * const leaf) const
 	{
@@ -142,13 +142,13 @@ struct RStarRemoveLeaf{
 // returns true if the specific leaf is matched. If remove duplicates is true, 
 // then it searches for all possible instances of the item
 template <typename Leaf>
-struct RStarRemoveSpecificLeaf
+struct RRemoveSpecificLeaf
 {
 	mutable bool ContinueVisiting;
 	bool m_remove_duplicates;
 	const typename Leaf::leaf_type &m_leaf;
 	
-	explicit RStarRemoveSpecificLeaf(const typename Leaf::leaf_type &leaf, bool remove_duplicates = false) : 
+	explicit RRemoveSpecificLeaf(const typename Leaf::leaf_type &leaf, bool remove_duplicates = false) : 
 		ContinueVisiting(true), m_remove_duplicates(remove_duplicates), m_leaf(leaf) {}
 		
 	bool operator()(const Leaf * const leaf) const
@@ -162,7 +162,7 @@ struct RStarRemoveSpecificLeaf
 		return false;
 	}
 	
-	private: RStarRemoveSpecificLeaf(){}
+	private: RRemoveSpecificLeaf(){}
 };
 
 

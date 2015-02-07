@@ -113,15 +113,6 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RStarBoundingBox.h">
-      <Filter>Header Files\RTree</Filter>
-    </ClInclude>
-    <ClInclude Include="RStarVisitor.h">
-      <Filter>Header Files\RTree</Filter>
-    </ClInclude>
-    <ClInclude Include="RStarTree.h">
-      <Filter>Header Files\RTree</Filter>
-    </ClInclude>
     <ClInclude Include="C:\Users\Lab1226-Candy\Desktop\Quadtree\QT3\SimpleOctree-master\SimpleOctree-master\Octree.h">
       <Filter>Header Files\QuadTree</Filter>
     </ClInclude>
@@ -142,6 +133,15 @@
     </ClInclude>
     <ClInclude Include="UpdateStategyRtree.h">
       <Filter>Header Files\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="RBoundingBox.h">
+      <Filter>Header Files\RTree</Filter>
+    </ClInclude>
+    <ClInclude Include="RTree.h">
+      <Filter>Header Files\RTree</Filter>
+    </ClInclude>
+    <ClInclude Include="RVisitor.h">
+      <Filter>Header Files\RTree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

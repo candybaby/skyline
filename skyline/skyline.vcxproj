@@ -168,9 +168,9 @@
     <ClInclude Include="Instance.h" />
     <ClInclude Include="ISkyline.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="RStarBoundingBox.h" />
-    <ClInclude Include="RStarTree.h" />
-    <ClInclude Include="RStarVisitor.h" />
+    <ClInclude Include="RBoundingBox.h" />
+    <ClInclude Include="RTree.h" />
+    <ClInclude Include="RVisitor.h" />
     <ClInclude Include="UncertainObject.h" />
     <ClInclude Include="UpdateStategyRtree.h" />
   </ItemGroup>

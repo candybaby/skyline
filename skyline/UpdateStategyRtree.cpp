@@ -14,7 +14,7 @@ UpdateStategyRtree::UpdateStategyRtree(Model* model)
 
 UpdateStategyRtree::~UpdateStategyRtree(void)
 {
-	_maybeTree.~RStarTree();
+	_maybeTree.~RTree();
 }
 
 void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
@@ -38,7 +38,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 
 	BoundingBox searchDDR = Bounds(minDDR, maxDDR);
 	UVisitorWithoutPruned x;
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchDDR), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree_T::AcceptOverlapping(searchDDR), UVisitorWithoutPruned());
 	// 物件MBR 處於新進物件的DDR(有Overlap)
 	vector<int> maxDim, minDim;
 	for (int i=0;i<DIMENSION;i++)
@@ -65,7 +65,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 	}
 
 	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree_T::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
 	//_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	// fix
 	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
@@ -99,7 +99,7 @@ void UpdateStategyRtree::InsertObject(UncertainObject* uObject)
 
 	BoundingBox searchPAR = Bounds(minPAR, maxPAR);
 	UVisitor y;
-	y = _maybeTree.Query(RTree::AcceptOverlapping(searchPAR), UVisitor());
+	y = _maybeTree.Query(RTree_T::AcceptOverlapping(searchPAR), UVisitor());
 	if (y.count != 0)
 	{
 		//_updateList.push_back(uObject);
@@ -195,7 +195,7 @@ void UpdateStategyRtree::DeleteObject(UncertainObject* uObject)
 
 	BoundingBox searchPDR = Bounds(minPDR, maxPDR);
 	UVisitorWithoutPruned x;
-	x = _maybeTree.Query(RTree::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree_T::AcceptOverlapping(searchPDR), UVisitorWithoutPruned());
 	//_updateList.insert(_updateList.end(), x.uObjects.begin(), x.uObjects.end());
 	// fix
 	for (vector<UncertainObject*>::iterator it = x.uObjects.begin(); it < x.uObjects.end(); it++)
@@ -281,7 +281,7 @@ string UpdateStategyRtree::GetSkylineResult()
 {
 	string result = "";
 	UVisitorWithoutPruned x;
-	x = _maybeTree.Query(RTree::AcceptAny(), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree_T::AcceptAny(), UVisitorWithoutPruned());
 	vector<UncertainObject*> temp = x.uObjects;
 	for (vector<UncertainObject*>::iterator it = temp.begin(); it < temp.end(); it++)
 	{
@@ -403,7 +403,7 @@ int UpdateStategyRtree::GetSkylineCount()
 {
 	int result = 0;
 	UVisitorWithoutPruned x;
-	x = _maybeTree.Query(RTree::AcceptAny(), UVisitorWithoutPruned());
+	x = _maybeTree.Query(RTree_T::AcceptAny(), UVisitorWithoutPruned());
 	vector<UncertainObject*> temp = x.uObjects;
 	for (vector<UncertainObject*>::iterator it = temp.begin(); it < temp.end(); it++)
 	{
